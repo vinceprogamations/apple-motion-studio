@@ -13,6 +13,9 @@
 # Writes "<out stem> - Music.wav" and "<out stem> - Mix.wav" next to the SFX stem. Needs ffmpeg/ffprobe, numpy.
 import argparse, json, os, re, subprocess, sys
 import numpy as np
+for _s in (sys.stdout, sys.stderr):
+    try: _s.reconfigure(encoding='utf-8')
+    except Exception: pass
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); from lib.tools import find_tool
 FFMPEG, FFPROBE = find_tool('ffmpeg'), find_tool('ffprobe', required=False)

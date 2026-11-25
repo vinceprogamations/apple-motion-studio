@@ -1,0 +1,33 @@
+{
+ "_como_ler": "sinais = palavras do pedido que indicam a SITUAÇÃO da ficha (não o setor). peso 2 = sinal forte. A ficha .md tem fonte, aplicação, quando atrapalha e teste.",
+ "casos": [
+  {"id": "thoughtworks-etsy", "titulo": "Thoughtworks × Etsy", "objetivo": "Apresentação institucional",
+   "sinais": {"apresentacao comercial": 3, "pitch": 2, "proposta": 1, "software house": 2, "consultoria": 2, "agencia": 1, "fornecedor": 1, "contratar": 2, "equipe externa": 2, "institucional": 2, "minha empresa": 1, "b2b": 1}},
+  {"id": "slack-dfe", "titulo": "Slack × Department for Education", "objetivo": "Automação sob medida",
+   "sinais": {"automacao": 2, "automatizar": 2, "manual": 2, "planilha": 2, "tarefa": 1, "rotina": 1, "processo": 1, "bot": 2, "sob medida": 2, "software house": 1, "clinica": 1, "clinicas": 1, "agendamento": 1, "recepcao": 1}},
+  {"id": "stripe-myob", "titulo": "Stripe × MYOB", "objetivo": "Integração de serviços",
+   "sinais": {"integracao": 2, "integrar": 2, "pagamento": 2, "fatura": 2, "cobranca": 2, "financeiro": 2, "erp": 2, "api": 1, "convenio": 1, "faturamento": 2}},
+  {"id": "apple-wwdc", "titulo": "Apple WWDC — Apple Intelligence e Xcode", "objetivo": "Keynote técnica",
+   "sinais": {"keynote": 2, "palestra": 2, "desenvolvedores": 2, "plateia tecnica": 2, "conferencia": 2, "sdk": 2, "api": 1}},
+  {"id": "figma-config", "titulo": "Figma Config — Dev Mode", "objetivo": "Lançamento para vários perfis",
+   "sinais": {"perfis": 2, "modulos": 2, "rede de": 2, "rede": 1, "unidades": 2, "gestor": 1, "atendente": 1, "recepcao": 1, "medicos": 1, "clinicas": 1, "plataforma": 1, "sistema": 1, "lancamento": 1}},
+  {"id": "linear-asks", "titulo": "Linear Asks no Slack", "objetivo": "Demo curta de funcionalidade",
+   "sinais": {"demo": 2, "funcionalidade": 2, "recurso": 1, "segundos": 1, "curto": 1, "dois sistemas": 2, "fila": 1, "chamado": 1, "integracao": 1}},
+  {"id": "google-gemini", "titulo": "Google Gemini × Ordinary Folk", "objetivo": "Filme de lançamento digital",
+   "sinais": {"lancamento": 2, "posicionamento": 2, "slogan": 1, "app": 1, "ia": 1, "filme": 1, "campanha": 1}},
+  {"id": "apple-homepod", "titulo": "Apple HomePod — Welcome Home", "objetivo": "Atuação e benefício emocional",
+   "sinais": {"emocao": 2, "emocional": 2, "sentir": 1, "atuacao": 2, "danca": 1, "musica": 1, "pessoas": 1}},
+  {"id": "apple-airpods", "titulo": "Apple AirPods Pro — Quiet the Noise", "objetivo": "Perspectiva audiovisual",
+   "sinais": {"percepcao": 2, "ruido": 2, "silencio": 1, "audio": 1, "fone": 2, "som": 1, "sensacao": 1}},
+  {"id": "nissan-qashqai", "titulo": "Nissan Qashqai e-POWER × The Mill", "objetivo": "Narrativa com pessoas",
+   "sinais": {"pessoas": 2, "personagem": 2, "narrativa": 2, "historia": 1, "comercial": 1, "tomadas": 1, "filmagem": 1}},
+  {"id": "alpine-a390", "titulo": "Alpine A390 × The Mill", "objetivo": "Integração de filmagem e 3D",
+   "sinais": {"3d": 2, "render": 1, "produto fisico": 2, "carro": 2, "filmagem": 1, "cgi": 2, "blender": 1}},
+  {"id": "ea-sports-father", "titulo": "EA Sports App × Father", "objetivo": "Som de interface",
+   "sinais": {"som de interface": 2, "cliques": 2, "ui": 1, "app": 1, "notificacao": 1, "feedback": 1, "sons": 1}},
+  {"id": "o2-father", "titulo": "O2 × Father", "objetivo": "Identidade sonora",
+   "sinais": {"identidade sonora": 2, "assinatura sonora": 2, "jingle": 2, "campanha": 1, "marca sonora": 2, "vinheta": 1}},
+  {"id": "blender-charge", "titulo": "Blender Studio — Charge", "objetivo": "Revisão de luz e materiais",
+   "sinais": {"luz": 1, "material": 1, "materiais": 1, "render caro": 2, "iluminacao": 2, "reflexo": 1, "3d": 1, "revisao": 1}}
+ ]
+}

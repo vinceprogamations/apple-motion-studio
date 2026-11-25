@@ -101,6 +101,34 @@ pergunta, com recomendação e alternativa no mesmo trecho e loudness comparáve
 | **híbrido** | parte delegada, parte reservada | só a decisão reservada |
 | **autônomo** | "faça tudo", "decide tudo", "a direção é sua" | nenhuma escolha de gosto. Pede só um asset obrigatório que falte (ex.: a assinatura sonora oficial) e entrega a versão sem ele como **prévia** |
 
+### Estudos de caso no primeiro briefing
+
+A skill traz um catálogo com 14 estudos de caso (apresentações, demos, som, 3D, filmes com pessoas) em
+`skills/apple-motion-studio/references/casos/`. No primeiro briefing ela sugere **no máximo duas** fichas e explica, para cada
+uma, por que combina com o pedido e em que situação pode piorar a peça. A resposta abaixo veio do **Codex**, com a skill instalada num projeto vazio. É a resposta real; a marca "Lumen" é fictícia:
+
+```text
+Você: Faça uma apresentação comercial da Lumen, minha software house, para uma rede de clínicas.
+
+Codex: Proponho uma apresentação comercial animada de 60 segundos, em formato 16:9, para mostrar à direção da rede
+como a Lumen poderia desenvolver software sob medida para as clínicas. […] Não encontrei um logotipo nem um
+portfólio da Lumen no projeto.
+O Apple Motion Studio começa pela escolha da direção criativa. Duas das 14 referências do catálogo combinam com o pedido:
+1. Thoughtworks × Etsy — por que contratar a Lumen. A apresentação partiria de uma situação que a direção reconhece,
+   como uma recepcionista que precisa ligar para outra unidade para encontrar um horário. […] O risco é usar
+   linguagem de consultoria e perder o detalhe que torna a situação familiar.
+2. Figma Config / Dev Mode — como o software funcionaria na rede. A apresentação acompanharia uma única remarcação.
+   […] Alternar entre telas e pacientes diferentes quebraria essa sequência.
+Minha escolha seria combinar as duas […].
+Como prefere seguir: decida você, escolho eu (1, 2 ou ambas), ver o catálogo ou sem cases?
+```
+
+O que cada resposta do usuário faz:
+
+- **"faz tudo aí":** o agente escolhe até duas fichas, registra como escolha delegada e produz o vídeo.
+- **"sem cases":** a preferência fica gravada; nenhuma ficha é sugerida ou citada, nem nas revisões.
+- **"ver o catálogo":** `python scripts/casos.py listar`.
+
 ### Exemplo: comercial com pessoas
 
 ```text

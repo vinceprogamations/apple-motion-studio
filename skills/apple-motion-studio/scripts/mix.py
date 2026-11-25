@@ -13,6 +13,9 @@
 # A bed:  {"type": "bed", "file": ..., "event"/"at": start, "to_event"/"to": end, "db": -26, "from": 0 (seconds into the file),
 #          "fade_in": 1.0, "fade_out": 1.5, "lp", "hp", "env": [["event or seconds", dB relative], ...]}   (loops if short)
 import json, sys, os, subprocess, argparse, numpy as np
+for _s in (sys.stdout, sys.stderr):
+    try: _s.reconfigure(encoding='utf-8')
+    except Exception: pass
 from scipy.signal import butter, sosfilt
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); from lib.tools import find_tool

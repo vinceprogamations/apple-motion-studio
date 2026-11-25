@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.1.0 — 2026-11-25
+- **Estudos de caso:**
+  - catálogo com 14 fichas e índice em `references/casos/`;
+  - `scripts/casos.py` (`sugerir`, `listar`, `ver`, `usar`, `sem`): no máximo duas sugestões, cada uma com por que combina e quando pode piorar.
+- **Primeira resposta** (topo do `SKILL.md`): entendimento + bloco de casos + quatro saídas (decida você, escolho eu, ver o catálogo, sem cases). A peça não é produzida antes da escolha.
+- **"sem cases"** vira restrição do projeto (`studio-state.json`), respeitada também nas revisões.
+- **Apresentação comercial em vídeo:**
+  - `scripts/apresentacao.py init` e `templates/dom/apresentacao.js` (slides como dados);
+  - o mesmo objeto atravessa os perfis, a estrela ✦ viaja entre os slides;
+  - QA com leitura e fundo preto da marca declarados.
+- **Descrição para o Codex:** os gatilhos foram para o início, porque o catálogo do Codex mostra só o começo da descrição.
+- **Correções:** UTF-8 na saída de `finish.py`, `mix.py` e `apresentacao.py` quando ela vai por pipe no Windows.
+
 ## v1.0.0 — 2026-11-25 (primeira versão pública)
 - **Autonomia com escopo**:
   - `studio.py state`: modos guiado, híbrido e autônomo; estados `delegado-agente`, `aprovado-usuario` e `exige-terceiro`; prévia quando falta asset obrigatório;

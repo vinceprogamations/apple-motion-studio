@@ -37,6 +37,7 @@ def classify(words):
         if st: res['reserved'].append(st)
     if re.search(r'\bsem (locucao|voz|narracao|narrador)\b', t): res['constraints']['voz'] = False
     if re.search(r'\bsem musica\b', t): res['constraints']['musica'] = False
+    if re.search(r'\bsem (cases?|casos|referencias|estudos de caso)\b', t): res['constraints']['casos'] = False   # nunca sugerir nem citar o catálogo
     if re.search(r'assinatura sonora', t): res['requires'].append({'id': 'assinatura-sonora', 'what': 'assinatura sonora oficial da marca', 'owner': 'marca'})
     m = re.search(r'(verba|orcamento) (de )?(r\$ ?)?(\d+)', t); res['constraints']['verba'] = float(m.group(4)) if m else 0.0   # no budget stated = zero extra cost
     res['delegated'] = [s for s in res['delegated'] if s not in res['reserved'] and s not in res['approved']]

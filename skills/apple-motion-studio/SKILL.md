@@ -1,6 +1,6 @@
 ---
 name: apple-motion-studio
-description: Estúdio de comerciais e filmes de motion graphics no estilo dos lançamentos da Apple, feitos como código (HTML/CSS, canvas, Three.js, Blender) e renderizados em MP4 1080p/4K (16:9 ou 9:16, até 60 fps) com som, sem gerador de vídeo por IA. Cobre briefing → storyboard → animação → render com portões automáticos → sound design e mix → QA → master, com modos de aprovação guiado, híbrido e autônomo ("faça tudo, decide tudo"). Use SEMPRE que o usuário pedir vídeo, filme, Reels, anúncio, comercial, motion, logo animado, storyboard, sonorização ou um "launch film"; quando delegar a produção ("faça tudo", "decide por mim"); ou quando der uma nota num filme já feito (atrasar um evento em N quadros, trocar uma foto, deixar um som menos estridente, mover uma legenda), mesmo sem dizer "Apple" nem "motion graphics".
+description: Vídeo comercial, apresentação comercial animada, Reels e filme de produto com som, feitos como código (HTML/CSS, canvas, Three.js, Blender) e renderizados em MP4 1080p/4K, sem gerador de vídeo por IA. Cobre briefing (com catálogo de 14 estudos de caso) → storyboard → animação → render com portões automáticos → som e mix → QA → master, com modos guiado, híbrido e autônomo ("faz tudo aí"). Use SEMPRE que o usuário pedir vídeo, filme, Reels, anúncio, comercial, apresentação comercial ou pitch em vídeo, motion graphics, logo animado, storyboard ou sonorização; quando delegar a produção ("faça tudo", "decide por mim"); ou quando der uma nota num filme já feito (atrasar um evento em N quadros, trocar uma foto, deixar um som menos estridente, mover uma legenda). Para slides estáticos editáveis (.pptx/Google Slides) prefira uma skill de apresentações; aqui a apresentação vira vídeo animado.
 ---
 
 # Apple Motion Studio
@@ -9,6 +9,16 @@ Comerciais dirigidos por código: cada quadro é função do tempo (`renderAt(t)
 quadros" ou "troque a foto deste perfil" vira uma mudança localizada e um re-render reprodutível. O caminho padrão é
 gratuito (Chrome headless + FFmpeg + bibliotecas locais). A Apple é referência de precisão, composição, materialidade,
 tipografia e som; a linguagem de cada filme nasce da marca, do público e da ideia. Fale em português, curto e direto.
+
+## Primeira resposta a um pedido novo (antes de qualquer produção)
+Se o pedido **não** delega ("faz tudo aí", "decide tudo", "a direção é sua") e **não** diz "sem cases", a primeira resposta
+termina na escolha do usuário. Mesmo numa execução não interativa, **não produza a peça nesta resposta**. A resposta tem, nesta ordem:
+1. **Uma linha com o que você entendeu:** formato (aqui, apresentação = **vídeo animado** 16:9; para slides editáveis existe outra skill), duração proposta, marca e material encontrados.
+2. **O bloco de estudos de caso** que `python scripts/casos.py sugerir "<pedido>" --projeto <projeto>` imprime, com até duas referências, *por que combina* e *quando pode piorar*.
+3. **As quatro saídas:** decida você / escolho eu / ver o catálogo / sem cases.
+4. **No máximo uma pergunta de briefing** que mude o filme (ex.: público na plateia ou envio por WhatsApp). O resto você decide depois.
+
+Com "faz tudo aí", pule esta etapa e produza. Com "sem cases", produza sem citar o catálogo.
 
 Comandos abaixo partem da pasta da skill; `python` = o `.venv` da skill (criado por `python scripts/setup.py`, que é idempotente) ou o do projeto.
 
@@ -27,6 +37,16 @@ diz o que está pronto, ausente ou é extensão opcional (FFmpeg/Chrome/Blender 
 | 6 | QA de quadros e promoção do master | `studio.py promote` | `references/qa.md` |
 | 7 | Som **depois da imagem aprovada** | cues, mix, master com áudio | `references/sound.md` |
 | 8 | Notas | nova versão; nunca sobrescrever o aprovado | `references/notas.md` |
+
+**Estudos de caso (catálogo de 14 fichas, `references/casos/`) no primeiro briefing:** rode
+`python scripts/casos.py sugerir "<pedido>" --projeto <projeto>` e siga o modo:
+- **guiado/híbrido** — mostre o bloco que o script imprime (no máximo **duas** referências, *por que combina* com este pedido e
+  *quando pode piorar* a peça) junto com as quatro saídas: **decida você**, **escolho eu**, **ver o catálogo** (`casos.py listar`
+  / `ver <id>`), **sem cases**. Registre a resposta (`casos.py usar <projeto> <id>…` ou `casos.py sem <projeto>`).
+- **autônomo** ("faz tudo aí") — não pergunte: escolha até duas, registre com `--por agente`, aplique a *aplicação proposta* e
+  confira o *teste na peça*; cite as escolhidas em uma linha na nota de entrega.
+- **sem cases** (no pedido ou depois) — não sugira, não cite, não use fichas; revisões também não reintroduzem referências.
+As fichas orientam a **direção** (como resolver uma situação); nunca copie métricas, textos ou marcas delas.
 
 Notas não são aprovação. Se uma nota muda planos, ordem ou transições, volte ao storyboard; ajuste de tempo/cor não.
 
@@ -48,6 +68,7 @@ zero. Uma nova sessão retoma por `studio.py state show <projeto>`.
 | produto fotorrealista | `references/blender.md` (validado: GLB do Three → Cycles GPU ≈ 8,5 s/quadro 1080p) | `scripts/blender/` + `render.mjs dump` |
 | ilustração da marca | `references/engine-2d-puppet.md` | `scripts/puppet.js`, `key.py`, `split.py` |
 | "faça tudo", "decide por mim", escolha reservada | `references/autonomia.md` | `studio.py state …` |
+| apresentação comercial, pitch, proposta animada (16:9) | `references/casos/README.md`, `references/storyboard.md` | `scripts/apresentacao.py init`, `templates/dom/apresentacao.js`, `scripts/casos.py` |
 | comercial com pessoas, filmagem, banco de vídeo, atuação | `references/pessoas.md`, `references/integracoes.md` | `templates/dom/footage.js`, proxies all-intra |
 | ideia, direção, duas tiras, referência por tipo de problema | `references/storyboard.md`, `references/repertorio.md` | `templates/storyboard-board.html` |
 | som, trilha, voz, licenças | `references/sound.md`, `references/autonomia.md` | `mix.py --stems`, `music_pick.py`, `synth_music.py`, `finish.py`, `qa_audio.py` |
