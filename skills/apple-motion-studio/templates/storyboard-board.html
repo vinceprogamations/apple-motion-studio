@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Storyboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  * { box-sizing: border-box; } html, body { margin: 0; background: #0B0B10; color: #f2f2f4; font-family: Inter, system-ui, sans-serif; }
+  .board { width: 1920px; padding: 40px 36px; } h1 { margin: 0 0 6px; font-size: 42px; font-weight: 600; letter-spacing: -1.2px; } h1 span { color: #8a8a94; font-weight: 400; }
+  .sub { font-size: 18px; color: #b9b9c1; margin-bottom: 26px; max-width: 1800px; line-height: 1.45; }
+  .grid { display: grid; grid-template-columns: repeat(3, 600px); gap: 34px 24px; }
+  .frame { position: relative; width: 600px; height: 338px; border-radius: 10px; overflow: hidden; background: #111; }
+  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .num { position: absolute; left: 12px; top: 10px; width: 44px; height: 44px; border-radius: 50%; background: #fff; color: #000; font-weight: 700; font-size: 22px; display: flex; align-items: center; justify-content: center; z-index: 2; }
+  .t { font-size: 14px; color: #7d7d87; margin-top: 10px; } .b { font-size: 21px; font-weight: 600; margin: 2px 0 4px; }
+  .d { font-size: 15px; color: #b9b9c1; line-height: 1.45; }
+  .mv { margin-top: 7px; font-size: 14.5px; color: #F5D04E; line-height: 1.4; } .tr { margin-top: 7px; font-size: 14.5px; color: #1FE39A; line-height: 1.4; }
+</style></head><body>
+<div class="board"><h1>Nuvra <span>· filme de lançamento · 20 s · 16:9 4K · storyboard</span></h1>
+  <div class="sub">App de foco fictício (nome, logo e interface inventados). Estilo Apple: fundo escuro, uma única luz principal, ação sempre no centro, câmera contínua que nunca volta atrás, texto palavra por palavra (de desfocado para nítido, sem quique). Sem narração: só música e efeitos, adicionados depois da imagem aprovada. Amarelo = o que se move, verde = como esta cena vira a próxima.</div>
+  <div class="grid" id="g"></div></div>
+<script>
+const S = [
+  ['0,0–2,5 s', 'frames/1.jpg', 'O anel', 'Abertura no preto. O logo Nuvra, um anel de cerâmica branca brilhante, surge do fundo em ângulo 3/4.', 'Vem do fundo rápido e desacelera longo; gira devagar enquanto uma faixa de luz varre a superfície.', 'O anel voa na direção da câmera; o furo do anel vira uma íris que revela a cena 2.'],
+  ['2,5–6,0 s', 'frames/2.jpg', 'O barulho', 'Através da borda desfocada do anel: o celular flutuando em 3/4, cercado de notificações de vidro. Título: “Sua mente tem muito barulho.”', 'Notificações chegam com mola, cada uma em uma profundidade; o celular dá um leve tremor (háptico) a cada uma; a câmera avança devagar.', 'As notificações são sugadas para dentro da tela e a câmera mergulha na tela do celular.'],
+  ['6,0–9,5 s', 'frames/3.jpg', 'Um toque', 'A tela preenche o quadro: anel do timer em 25:00 e o botão “Iniciar foco”. Título: “Um toque. Silêncio.”', 'Um toque simulado aperta o botão (achata e solta), solta uma onda; o botão se transforma no arco de progresso, que começa a encher.', 'O arco cresce até preencher o quadro, e o fundo se enche de azul-profundo.'],
+  ['9,5–13,0 s', 'frames/4.jpg', 'Foco profundo', 'Arco gigante luminoso e o timer 24:57 contando. Linha: “Foco profundo, no seu ritmo.”', 'Os números trocam com rolagem suave, o brilho do arco respira devagar e a câmera gira lentamente.', 'A câmera recua; o arco encolhe e vira o anel de um widget ao lado do celular.'],
+  ['13,0–16,5 s', 'frames/5.jpg', 'Progresso', 'Celular em 3/4 com cartões de vidro em leque e profundidade: “4h 12m”, anel de “7 dias”, “Sessão concluída”. Título: “Veja seu progresso.”', 'Cartões entram com mola; as barras enchem com um brilho correndo; um toque marca a sessão como concluída.', 'O widget redondo gira até ficar de perfil e, nesse instante invisível, vira o anel do logo.'],
+  ['16,5–20,0 s', 'frames/6.jpg', 'Assinatura', 'O anel Nuvra perfeitamente centralizado, o nome “Nuvra” e, embaixo, pequeno: “Em breve.”', 'Sem movimento de câmera (cartela final travada); só uma faixa de luz passa pelo anel e pelo nome.', 'Fim. Chamada final: “Em breve.” (não cita loja de apps, porque o app não existe).'],
+];
+document.getElementById('g').innerHTML = S.map(([t, img, b, d, mv, tr], i) => `<div><div class="frame"><div class="num">${i + 1}</div><img src="${img}"></div>
+  <div class="t">${t}</div><div class="b">${b}</div><div class="d">${d}</div><div class="mv">${mv}</div><div class="tr">→ ${tr}</div></div>`).join('');
+</script></body></html>

@@ -1,0 +1,17 @@
+[
+ {"type": "bed", "file": "quando-musica", "at": 0, "to": 12, "db": -7, "stem": "musica", "fade_in": 0.3, "fade_out": 0.6},
+ {"type": "bed", "file": "Synth Air Bed", "at": 0, "to": 2.4, "db": -30, "stem": "ambiencia", "fade_in": 0.4, "fade_out": 0.8},
+ {"event": "h1.w0", "file": "Synth Tick", "db": -24, "align": "start", "stem": "ui"},
+ {"event": "sobrepor", "offset": 0.9, "file": "Synth Whoosh 2", "db": -17, "align": "peak", "stem": "efeitos"},
+ {"event": "livre", "file": "Synth Pop", "db": -13, "align": "start", "stem": "ui"},
+ {"event": "h2.w0", "file": "Synth Tick", "db": -24, "align": "start", "stem": "ui"},
+ {"event": "toque", "file": "Synth Tap", "db": -12, "align": "start", "stem": "foley"},
+ {"event": "abrir", "offset": 0.35, "file": "Synth Whoosh 1", "db": -18, "align": "peak", "stem": "efeitos"},
+ {"event": "toqueBtn", "file": "Synth Tap", "db": -12, "align": "start", "stem": "foley"},
+ {"event": "confirmado", "file": "Synth Confirm", "db": -8, "align": "start", "stem": "confirmacao"},
+ {"event": "confirmado", "file": "Synth Soft Hit", "db": -11, "align": "start", "stem": "efeitos"},
+ {"event": "notifA", "file": "Synth Tick", "db": -19, "pitch": 1.25, "align": "start", "stem": "ui"},
+ {"event": "notifB", "file": "Synth Tick", "db": -19, "pitch": 1.4, "align": "start", "stem": "ui"},
+ {"event": "h3.w0", "file": "Synth Tick", "db": -24, "align": "start", "stem": "ui"},
+ {"event": "marca", "file": "Synth Soft Hit", "db": -15, "align": "start", "stem": "efeitos"}
+]

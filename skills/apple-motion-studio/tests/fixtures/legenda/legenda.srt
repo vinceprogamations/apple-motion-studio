@@ -1,0 +1,12 @@
+1
+00:00:00,300 --> 00:00:01,400
+Sua agenda inteira
+num só lugar.
+
+2
+00:00:01,400 --> 00:00:02,600
+Marque em dois toques.
+
+3
+00:00:02,600 --> 00:00:03,800
+E confirme na hora.

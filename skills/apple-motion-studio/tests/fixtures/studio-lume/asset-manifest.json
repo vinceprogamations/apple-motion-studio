@@ -1,0 +1,88 @@
+{
+ "project": "fixture-studio-lume",
+ "note": "Regressão Studio Lume: 3 vagas obrigatórias de foto de perfil. Retratos gerados por código para os testes (autoria própria, CC0).",
+ "fps": 30,
+ "assets": [
+  {
+   "id": "avatar-ana",
+   "type": "photo",
+   "scene": "s1",
+   "slot": "avatar-ana",
+   "role": "avatar do 1º agendamento",
+   "required": true,
+   "file": "img/ana.jpg",
+   "visible": [
+    1.0,
+    2.4
+   ],
+   "origin": "gerada por código (tests: retrato procedural)",
+   "license": "CC0 (autoria própria da skill)",
+   "status": "INTEGRATED",
+   "pixels": [
+    512,
+    512
+   ],
+   "sha256": "1746137ad529d62cb87af657b420aad0b2b7a1f85ce8c3d8ff33359f0cf581b7",
+   "approval": {
+    "status": "approved",
+    "by": "user",
+    "scope": "fixture de teste (retratos procedurais)",
+    "date": "2026-11-25"
+   }
+  },
+  {
+   "id": "avatar-bruno",
+   "type": "photo",
+   "scene": "s1",
+   "slot": "avatar-bruno",
+   "role": "avatar do 2º agendamento",
+   "required": true,
+   "file": "img/bruno.jpg",
+   "visible": [
+    1.0,
+    2.4
+   ],
+   "origin": "gerada por código (tests: retrato procedural)",
+   "license": "CC0 (autoria própria da skill)",
+   "status": "INTEGRATED",
+   "pixels": [
+    512,
+    512
+   ],
+   "sha256": "4b21badd4a332995c5b1b35d427ef52bf0db4f92cf26667c447c912db00a34b0",
+   "approval": {
+    "status": "approved",
+    "by": "user",
+    "scope": "fixture de teste (retratos procedurais)",
+    "date": "2026-11-25"
+   }
+  },
+  {
+   "id": "avatar-duda",
+   "type": "photo",
+   "scene": "s1",
+   "slot": "avatar-duda",
+   "role": "avatar do 3º agendamento",
+   "required": true,
+   "file": "img/duda.jpg",
+   "visible": [
+    1.0,
+    2.4
+   ],
+   "origin": "gerada por código (tests: retrato procedural)",
+   "license": "CC0 (autoria própria da skill)",
+   "status": "INTEGRATED",
+   "pixels": [
+    512,
+    512
+   ],
+   "sha256": "ee65fc31d343f61e1919013fc6cbd277769a6d452b1cbb26f2b9bf9b79c57faa",
+   "approval": {
+    "status": "approved",
+    "by": "user",
+    "scope": "fixture de teste (retratos procedurais)",
+    "date": "2026-11-25"
+   }
+  }
+ ]
+}

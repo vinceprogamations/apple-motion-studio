@@ -1,0 +1,127 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Quando — demo</title>
+<style>
+  @font-face { font-family: UI; src: url("../../templates/dom/fonts/Inter-Variable.ttf"); font-weight: 100 900; }
+  :root { --acc: #7cf2c4; --bg: #0b0c0f; }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); font-family: UI, sans-serif; color: #f3f4f6; }
+  .glow { position: absolute; inset: 0; background: radial-gradient(900px 700px at 50% 42%, rgba(124,242,196,.10), transparent 70%); }
+  .hl { position: absolute; left: 0; right: 0; top: 210px; text-align: center; font-size: 84px; font-weight: 700; letter-spacing: -0.035em; }
+  .hl span { display: inline-block; margin: 0 .13em; will-change: transform, filter, opacity; }
+  .col { position: absolute; top: 470px; width: 400px; height: 1000px; border-radius: 44px; background: rgba(255,255,255,.05);
+         border: 1px solid rgba(255,255,255,.10); box-shadow: 0 40px 90px rgba(0,0,0,.45); }
+  .who { position: absolute; left: 32px; top: 30px; display: flex; gap: 16px; align-items: center; font-size: 34px; font-weight: 600; }
+  .av { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #0b0c0f; }
+  .row { position: absolute; left: 32px; right: 28px; height: 74px; border-top: 1px solid rgba(255,255,255,.07); font-size: 24px; color: rgba(255,255,255,.45); }
+  .row b { position: absolute; left: 0; top: 10px; font-weight: 500; }
+  .busy { position: absolute; left: 96px; right: 0; top: 6px; bottom: 6px; border-radius: 16px; background: rgba(255,255,255,.16); color: rgba(255,255,255,.7);
+          font-size: 24px; padding: 18px 20px; box-sizing: border-box; }
+  .slot { position: absolute; border-radius: 22px; background: var(--acc); color: #06140e; box-shadow: 0 0 0 rgba(124,242,196,0);
+          display: grid; place-items: center; overflow: hidden; }
+  .slot .t1 { font-size: 30px; font-weight: 700; }
+  .card { position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: grid; align-content: center; justify-items: center; gap: 14px; }
+  .card .big { font-size: 96px; font-weight: 700; letter-spacing: -0.04em; }
+  .card .sub { font-size: 36px; font-weight: 500; opacity: .75; }
+  .btn { margin-top: 18px; height: 92px; width: 420px; border-radius: 46px; background: #06140e; color: var(--acc); font-size: 36px; font-weight: 700; display: grid; place-items: center; }
+  .tap { position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; background: rgba(255,255,255,.85); box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  .ring { position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; border: 4px solid rgba(255,255,255,.8); }
+  .pill { position: absolute; left: 190px; width: 700px; height: 108px; border-radius: 54px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.12);
+          display: flex; align-items: center; gap: 22px; padding: 0 34px; box-sizing: border-box; font-size: 34px; font-weight: 600; backdrop-filter: blur(18px); }
+  .pill .ok { margin-left: auto; color: var(--acc); font-size: 40px; }
+  .end { position: absolute; left: 0; right: 0; top: 760px; display: grid; justify-items: center; gap: 30px; }
+  .mark { position: relative; width: 180px; height: 180px; }
+  .mark i { position: absolute; width: 120px; height: 120px; border-radius: 34px; border: 10px solid #f3f4f6; box-sizing: border-box; }
+  .mark i.b { left: 60px; top: 60px; }
+  .mark em { position: absolute; left: 60px; top: 60px; width: 60px; height: 60px; border-radius: 0 0 0 0; background: var(--acc); }
+  .word { font-size: 120px; font-weight: 700; letter-spacing: -0.05em; }
+  .tag { font-size: 42px; font-weight: 500; opacity: .7; }
+  .black { position: absolute; inset: 0; background: #000; pointer-events: none; }
+</style></head><body>
+<div class="glow" id="glow"></div><div id="stage" style="position:absolute;inset:0;transform-origin:50% 45%">
+<div class="hl" id="hl" data-qa="headline"></div>
+<div class="col" id="cA"></div><div class="col" id="cB"></div>
+<div class="slot" id="slot" data-qa="prova" data-qa-required="4.2-9.4"><div class="t1" id="slotT">15:00 · livre</div>
+  <div class="card" id="card"><div class="big">Qui, 15:00</div><div class="sub">Café · Ana e Léo</div><div class="btn" id="btn">Confirmar</div></div></div>
+<div class="ring" id="ring"></div><div class="tap" id="tap"></div>
+<div class="pill" id="pA"><div class="av" style="background:#ffb38a">A</div>Ana confirmou<span class="ok">✓</span></div>
+<div class="pill" id="pB"><div class="av" style="background:#9cc7ff">L</div>Léo confirmou<span class="ok">✓</span></div>
+<div class="end" id="end" data-qa="cta"><div class="mark"><i></i><i class="b"></i><em></em></div><div class="word">Quando</div><div class="tag">O horário em comum, achado.</div></div>
+</div><div class="black" id="blk"></div>
+<script src="../../templates/motion-core.js"></script>
+<script>
+// "Quando" — demo pública da apple-motion-studio (app fictício). 12 s, 1080×1920, 30 fps. Assets: nenhum externo (manifesto vazio).
+// Promessa: "encontre um horário em comum". Compreensão nasce no quadro em que as duas agendas se sobrepõem e SÓ o 15:00 acende (B.livre).
+// ---------------------------------------------------------------- batidas (TODAS aqui; o som segue window.EVENTS)
+const B = { open: [0, 0.3], h1: 0.35, sobrepor: [2.2, 4.0], livre: 3.9, h2: 4.2, toque: 5.4, abrir: [5.5, 6.6], toqueBtn: 6.75,
+            confirmado: 7.0, notifA: 7.6, notifB: 7.9, h3: 8.3, marca: 10.0, out: [11.5, 12.0] };
+const TOTAL = 12.0, H1 = 'Duas agendas.', H2 = 'Um horário livre.', H3 = 'Pronto. Os dois sabem.';
+const HOURS = ['09', '10', '11', '12', '13', '14', '15', '16', '17', '18'], FREE = 6;
+const BUSY_A = [0, 1, 3, 4, 7, 8], BUSY_B = [2, 3, 5, 8, 9];   // 15:00 (índice 6) é o único livre nas duas
+const words = s => s.split(' ');
+window.TOTAL = TOTAL;
+window.EVENTS = [
+  ...[['h1', H1], ['h2', H2], ['h3', H3]].flatMap(([k, s]) => words(s).map((w, i) => ({ name: `${k}.w${i}`, t: +(B[k] + i * 0.12).toFixed(3) }))),
+  { name: 'sobrepor', t: B.sobrepor[0] }, { name: 'livre', t: B.livre }, { name: 'toque', t: B.toque }, { name: 'abrir', t: B.abrir[0] },
+  { name: 'toqueBtn', t: B.toqueBtn }, { name: 'confirmado', t: B.confirmado }, { name: 'notifA', t: B.notifA }, { name: 'notifB', t: B.notifB }, { name: 'marca', t: B.marca },
+];
+window.TIMELINE = { total: TOTAL, scenes: [{ id: 'quando', start: 0, end: TOTAL }],
+  transitions: [{ from: B.sobrepor[0], to: B.sobrepor[1] }, { from: B.abrir[0], to: B.abrir[1] }, { from: B.marca - 0.6, to: B.marca + 0.6 }],
+  intentional: [{ type: 'black', from: 0, to: B.open[1], why: 'abre do preto' }, { type: 'static_logo', from: B.marca + 0.4, to: B.out[0], why: 'assinatura parada para leitura' }, { type: 'black', from: B.out[0], to: TOTAL, why: 'fecha no preto' }] };
+// ---------------------------------------------------------------- kit
+const $ = id => document.getElementById(id), clamp = v => Math.max(0, Math.min(1, v)), prog = (t, a, b) => clamp((t - a) / (b - a));
+const sine = k => 0.5 - 0.5 * Math.cos(Math.PI * clamp(k)), lerp = (a, b, k) => a + (b - a) * k;
+const SP = (t, fam) => MotionCore.value(t, MotionCore.FAMILIES[fam]);
+function column(el, name, color, busy) {
+  el.innerHTML = `<div class="who"><div class="av" style="background:${color}">${name[0]}</div>${name}</div>` +
+    HOURS.map((h, i) => `<div class="row" style="top:${120 + i * 86}px"><b>${h}h</b>${busy.includes(i) ? '<div class="busy">Ocupado</div>' : ''}</div>`).join('');
+}
+column($('cA'), 'Ana', '#ffb38a', BUSY_A); column($('cB'), 'Léo', '#9cc7ff', BUSY_B);
+function headline(t) {   // palavra por palavra: blur → nítido, sobe 18 px, sem rebote; troca de linha por saída rápida
+  const lines = [[B.h1, H1, B.sobrepor[0] + 1.2], [B.h2, H2, B.abrir[0] + 0.3], [B.h3, H3, B.marca - 0.4]];
+  let html = ''; for (const [t0, s, t1] of lines) {
+    if (t < t0 || t > t1 + 0.35) continue; const out = 1 - sine(prog(t, t1, t1 + 0.35));
+    html = words(s).map((w, i) => { const k = SP(t - t0 - i * 0.12, 'smooth'), a = clamp(k) * out;
+      return `<span style="opacity:${a.toFixed(3)};filter:blur(${((1 - clamp(k)) * 10 + (1 - out) * 6).toFixed(2)}px);transform:translateY(${((1 - clamp(k)) * 18).toFixed(1)}px)">${w}</span>`; }).join('');
+  }
+  $('hl').innerHTML = html;
+}
+window.renderAt = t => {
+  // câmera: um push lento e contínuo (nunca recua) + a luz de fundo respira — nenhum quadro fica idêntico ao anterior
+  $('stage').style.transform = `scale(${(1 + 0.07 * t / TOTAL).toFixed(5)})`;
+  $('glow').style.transform = `translate(${(Math.sin(t * 0.7) * 30).toFixed(2)}px, ${(t * 6).toFixed(2)}px)`;
+  headline(t);
+  // colunas entram (spring soft), depois deslizam uma sobre a outra (sobreposição) e somem quando o horário vira cartão
+  const inA = SP(t - 0.5, 'soft'), inB = SP(t - 0.62, 'soft'), ov = sine(prog(t, ...B.sobrepor)), fade = 1 - sine(prog(t, B.abrir[0], B.abrir[0] + 0.5));
+  const xA = lerp(-420, 110, inA) + 230 * ov, xB = lerp(1100, 570, inB) - 230 * ov;
+  $('cA').style.transform = `translateX(${xA}px)`; $('cA').style.opacity = fade;
+  $('cB').style.transform = `translateX(${xB}px)`; $('cB').style.opacity = fade * (1 - 0.45 * ov);
+  // o horário livre acende quando a sobreposição termina; o toque o transforma no cartão de confirmação (morph, sem dissolve)
+  const lit = SP(t - B.livre, 'ui'), open = SP(t - B.abrir[0], 'soft');
+  const s0 = { x: 340 + 128, y: 470 + 120 + FREE * 86 + 6, w: 400 - 128 - 28, h: 62 }, s1 = { x: 110, y: 760, w: 860, h: 420 };
+  const r = { x: lerp(s0.x, s1.x, open), y: lerp(s0.y, s1.y, open), w: lerp(s0.w, s1.w, open), h: lerp(s0.h, s1.h, open) };
+  const slot = $('slot'); slot.style.left = r.x + 'px'; slot.style.top = r.y + 'px'; slot.style.width = r.w + 'px'; slot.style.height = r.h + 'px';
+  slot.style.borderRadius = lerp(16, 48, open) + 'px'; slot.style.opacity = t < B.livre ? 0 : Math.min(1, lit * 1.2) * (1 - sine(prog(t, B.marca - 0.5, B.marca)));
+  slot.style.transform = `scale(${t < B.abrir[0] ? 0.92 + 0.08 * lit : 1})`;
+  slot.style.boxShadow = `0 0 ${80 * clamp(lit)}px rgba(124,242,196,${0.45 * clamp(lit) * (1 - open * 0.6)})`;
+  $('slotT').style.opacity = 1 - clamp(open * 3); $('card').style.opacity = clamp((open - 0.45) * 2.2);
+  // confirmação: o botão vira "Confirmado ✓" exatamente em B.confirmado
+  const conf = t >= B.confirmado, ck = SP(t - B.confirmado, 'snap'); $('btn').textContent = conf ? 'Confirmado ✓' : 'Confirmar';
+  $('btn').style.transform = `scale(${conf ? 0.94 + 0.06 * ck : 1 - 0.05 * Math.exp(-Math.max(0, t - B.toqueBtn) * 9) * (t >= B.toqueBtn ? 1 : 0)})`;
+  $('btn').style.background = conf ? '#06140e' : '#0f2a1f';
+  // dedo: chega ao horário, toca, sobe ao botão, toca, sai
+  const tp = $('tap'), rg = $('ring'); const p1 = { x: s0.x + s0.w / 2, y: s0.y + 31 }, p2 = { x: 540, y: 760 + 300 };
+  const arrive = SP(t - 4.7, 'smooth'), move2 = sine(prog(t, 6.0, 6.6)), leave = sine(prog(t, 7.3, 7.8));
+  const px = lerp(lerp(p1.x + 260, p1.x, arrive), p2.x, move2), py = lerp(lerp(p1.y + 420, p1.y, arrive), p2.y, move2) + 700 * leave;
+  const press = Math.max(t >= B.toque ? Math.exp(-(t - B.toque) * 10) : 0, t >= B.toqueBtn ? Math.exp(-(t - B.toqueBtn) * 10) : 0);
+  tp.style.left = px + 'px'; tp.style.top = py + 'px'; tp.style.opacity = clamp(prog(t, 4.6, 4.9)) * (1 - leave); tp.style.transform = `scale(${1 - 0.18 * press})`;
+  const rk = t >= B.toqueBtn ? t - B.toqueBtn : (t >= B.toque ? t - B.toque : -1);
+  rg.style.left = px + 'px'; rg.style.top = py + 'px'; rg.style.opacity = rk < 0 || rk > 0.5 ? 0 : 1 - rk / 0.5; rg.style.transform = `scale(${1 + rk * 2.2})`;
+  // notificações dos dois (prova de que os dois sabem), stagger
+  for (const [id, t0, y] of [['pA', B.notifA, 1240], ['pB', B.notifB, 1372]]) {
+    const k = SP(t - t0, 'soft'), out = 1 - sine(prog(t, B.marca - 0.5, B.marca)); const el = $(id);
+    el.style.top = y + 'px'; el.style.opacity = clamp(k) * out; el.style.transform = `translateY(${(1 - k) * 60}px)`;
+  }
+  // assinatura: as duas agendas viram o símbolo (dois quadrados sobrepostos, a interseção acesa)
+  const e = SP(t - B.marca, 'soft'); $('end').style.opacity = clamp(e); $('end').style.transform = `translateY(${(1 - e) * 30}px)`;
+  $('blk').style.opacity = Math.max(1 - sine(prog(t, ...B.open)), sine(prog(t, ...B.out)));
+};
+window.ready = (async () => { await document.fonts.load('700 84px UI'); await document.fonts.load('500 34px UI'); renderAt(0); return true; })();
+</script></body></html>

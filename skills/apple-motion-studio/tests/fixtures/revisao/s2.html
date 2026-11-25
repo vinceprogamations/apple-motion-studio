@@ -1,0 +1,33 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><link rel="stylesheet" href="../../../templates/dom/common.css"><link rel="stylesheet" href="../../../templates/dom/phone.css"><link rel="stylesheet" href="../../../templates/dom/light.css"><script src="../../../templates/dom/icons.js"></script>
+<style>
+  /* scene-specific layout here. Author the STATIC key frame first (it is also the storyboard frame), then animate it. */
+  .toast { left: 70px; top: 560px; width: 940px; height: 140px; border-radius: 44px; display: flex; align-items: center; gap: 24px; padding: 0 30px; }
+  .toast .t { font-size: 32px; font-weight: 700; } .toast .s { font-size: 24px; color: rgba(255,255,255,.66); margin-top: 3px; }
+</style></head><body><div class="stage">
+  <div class="shadow" style="left:260px;top:1760px;width:560px;height:90px"></div>
+  <div class="phone" style="left:280px;top:720px;transform:perspective(2600px) rotateY(-14deg) rotateX(6deg)">
+    <div class="bez"><div class="scr"><div class="island"></div><div class="refl"></div>
+      <div class="lui"><div class="top"><div class="mark" style="background:#16A89A">V</div>Cliente</div>
+        <div class="hero"><div class="k">quinta-feira</div><h3>Bom dia.</h3><p>Conteúdo realista do cliente aqui.</p><div class="btn" id="b1">Abrir agenda</div></div>
+      </div></div></div></div>
+  <div class="glass toast"><div class="av" style="width:80px;height:80px;background:#556"></div><div><div class="t">Novo agendamento</div><div class="s">Qui · 14:00</div></div></div>
+  <div class="hl">Título curto.</div>
+  <div class="sub" style="top:378px">Subtítulo em uma linha.</div>
+  <div class="grain"></div>
+</div>
+<script src="../../../templates/motion-core.js"></script><script src="../../../templates/dom/anim.js"></script>
+<script>
+// one scene = one pure function of local time (no timers). Durations 4.5–6.5 s.
+// every beat of this scene, in local seconds: change timing HERE only (scene sound events derive from it)
+const B = { toast: 1.2, tapArrive: 2.1, tap: 2.4 };
+window.SCENE_EVENTS = [{ name: 'toast', t: B.toast }, { name: 'tap', t: B.tap }];
+const phone = $('.phone'), toast = $('.toast'), btn = $('#b1'), stage = $('.stage'), DUR = 4.5;
+window.anim = lt => {
+  const pk = sp(lt - 0.05, 'heavy');                                                     // phone rises on a heavy spring
+  setT(phone, `translate(${drift(lt, 1, 5)}px, ${(1 - pk) * 800 + drift(lt, 2, 8)}px) rotate(${wiggle(lt, B.toast)}deg)`, lt > 0.05 ? 1 : 0);
+  pop(toast, lt, B.toast, { s0: 0.8, dy: -180, rot: 2 });                                    // toast drops on a bouncy spring + haptic wiggle above
+  btn.style.transform = `scale(${squish(lt, B.tap)})`; touchOn('T0', btn, lt, B.tapArrive, B.tap);    // touch: appears, presses, ripple, button squish
+  setT(stage, `scale(${1 + 0.035 * sine(lt / DUR)})`);                                    // slow push: something always moves
+  titles(lt, DUR);                                                                        // headline + sub word by word, out before the cut
+};
+</script></body></html>

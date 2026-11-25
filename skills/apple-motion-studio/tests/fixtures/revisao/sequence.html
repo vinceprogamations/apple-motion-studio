@@ -1,0 +1,59 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Sequence</title>
+<style>
+  html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}   /* 9:16 Reels. For 16:9 use 1920x1080 here and in render_dom (--w/--h) */
+  iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0;visibility:hidden}
+  #dots{position:absolute;left:0;top:0;width:100%;height:100%;z-index:5;pointer-events:none}
+</style></head><body>
+<canvas id="dots" width="1080" height="1920"></canvas>
+<script>
+// apple-motion-studio — sequence of DOM scenes.
+// Each scene is its own page sN.html exposing window.anim(lt) and window.ready. This page shows the active one and
+// draws the cut: the frame dissolves into a dot grid closing on the last action point, the next scene re-forms from it.
+// Contract for render_dom.mjs: renderAt(t), TOTAL, ready, EVENTS.
+const CUTS = [0, 2.5];                     // scene start times (s). Scene i runs CUTS[i] -> CUTS[i+1]
+const ORIGIN = [null, [540, 1000]]; // where the wipe INTO scene i closes (usually the last touch/action point of scene i-1)
+const TOTAL = 6, TW = 0.34, CELL = 30;          // TW = half-length of each dot wipe
+window.TOTAL = TOTAL;
+// intentional holds / black / white / static logo / silence (film seconds): frame QA accepts these ranges instead of flagging them
+const INTENTIONAL = [];
+window.TIMELINE = { total: TOTAL, scenes: CUTS.map((c, i) => ({ id: `s${i + 1}`, start: c, end: CUTS[i + 1] ?? TOTAL })), intentional: INTENTIONAL };
+window.EVENTS = [                                // every sound beat, in film seconds (scene start + local beat)
+  ...CUTS.slice(1).map((c, i) => ({ name: 'cut.' + (i + 1), t: c - 0.1 })),
+];
+const frames = CUTS.map((c, i) => { const f = document.createElement('iframe'); f.src = `s${i + 1}.html`; document.body.insertBefore(f, document.getElementById('dots')); return f; });
+// ready = every scene page loaded AND honours the contract (anim function + ready promise) AND its own ready resolved.
+// A scene without the contract, or whose assets failed, rejects with its file name (it used to be accepted silently).
+const SCENE_IDS = CUTS.map((c, i) => `s${i + 1}`);
+function sceneReady(f, i) {
+  return new Promise((res, rej) => { f.onload = res; f.onerror = () => rej(new Error(`${SCENE_IDS[i]}.html não carregou`)); }).then(() => {
+    const w = f.contentWindow;
+    if (typeof w.anim !== 'function' || !w.ready || typeof w.ready.then !== 'function')
+      throw new Error(`${SCENE_IDS[i]}.html não cumpre o contrato de cena (precisa de window.anim(lt) e window.ready); scripts do kit carregaram?`);
+    return w.ready;
+  });
+}
+window.ready = Promise.all(frames.map(sceneReady)).then(() => {
+  // scene beats (window.SCENE_EVENTS, local seconds) join the film EVENTS with the scene start added: one source of truth per beat
+  frames.forEach((f, i) => (f.contentWindow.SCENE_EVENTS || []).forEach(e => window.EVENTS.push({ name: `${SCENE_IDS[i]}.${e.name}`, t: +(CUTS[i] + e.t).toFixed(6) })));
+  return true; });
+// for the renderer's gates: the active scene id and its asset slots at time t
+window.studioScenes = { ids: SCENE_IDS, cuts: CUTS, at: t => { let i = 0; while (i < CUTS.length - 1 && t >= CUTS[i + 1]) i++; return i; },
+  slots: t => { const i = window.studioScenes.at(t), w = frames[i].contentWindow; return { scene: SCENE_IDS[i], slots: w.__studio ? w.__studio.slots() : null, warnings: w.__studio ? w.__studio.warnings : [] }; } };
+const D = document.getElementById('dots').getContext('2d'), WW = D.canvas.width, HH = D.canvas.height;
+const ease = k => (k = Math.max(0, Math.min(1, k))) < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function wipe(k, [ox, oy]) { D.clearRect(0, 0, WW, HH); if (k <= 0) return; D.fillStyle = '#000'; const maxd = Math.hypot(WW, HH);
+  for (let y = CELL / 2; y < HH + CELL; y += CELL) for (let x = CELL / 2; x < WW + CELL; x += CELL) {
+    const d = Math.hypot(x - ox, y - oy) / maxd, kk = Math.max(0, Math.min(1, k * 1.9 - (1 - d) * 0.9));
+    if (kk > 0) { D.beginPath(); D.arc(x, y, CELL * 0.72 * kk, 0, 6.2832); D.fill(); } } }
+window.renderAt = t => {
+  let i = 0; while (i < CUTS.length - 1 && t >= CUTS[i + 1]) i++;
+  frames.forEach((f, j) => f.style.visibility = j === i ? 'visible' : 'hidden');
+  frames[i].contentWindow.anim(t - CUTS[i]);
+  let k = 0, o = [WW / 2, HH / 2]; const nx = CUTS[i + 1], pv = CUTS[i];
+  if (nx != null && t > nx - TW) { k = ease((t - (nx - TW)) / TW); o = ORIGIN[i + 1]; }
+  else if (i > 0 && t < pv + TW) { k = 1 - ease((t - pv) / TW); o = ORIGIN[i]; }
+  wipe(k, o);
+};
+const q = new URLSearchParams(location.search);
+window.ready.then(() => { if (q.has('t')) renderAt(parseFloat(q.get('t'))); else { const t0 = performance.now(); (function tick() { renderAt(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(tick); })(); } });
+</script></body></html>

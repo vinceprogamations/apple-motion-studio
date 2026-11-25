@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+apple-motion-studio-demo/
+skills/apple-motion-studio/tests/_work/
+skills/apple-motion-studio/tests/evidence/
+skills/apple-motion-studio/demo/quando/out/
+*.tmp.mp4

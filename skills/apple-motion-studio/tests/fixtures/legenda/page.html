@@ -1,0 +1,37 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: UI; src: url("../../../templates/dom/fonts/Inter-Variable.ttf"); font-weight: 100 900; }
+  html, body { margin: 0; width: 1080px; height: 1920px; background: #0b0b0d; overflow: hidden; font-family: UI, sans-serif; color: #fff; }
+  .hl { position: absolute; left: 0; right: 0; text-align: center; font-size: 96px; font-weight: 700; letter-spacing: -0.03em; }
+  .prova { position: absolute; left: 190px; top: 640px; width: 700px; height: 640px; border-radius: 60px; background: linear-gradient(160deg, #24242a, #141418);
+           border: 1px solid rgba(255,255,255,.12); display: grid; place-items: center; font-size: 64px; font-weight: 600; }
+  .ok { color: #5be49b; }
+  .cap { position: absolute; left: 90px; right: 90px; top: 1500px; text-align: center; font-size: 52px; line-height: 1.2; font-weight: 600;
+         background: rgba(0,0,0,.55); border-radius: 24px; padding: 18px 24px; white-space: pre-line; }
+</style></head><body>
+<!-- QA fixture (prompt 2 § 6): a headline that exits during the 1.0–2.0 s transition. EXIT "down" crosses the caption only in
+     the middle of the transition (collision); EXIT "up" is the corrected version. Captions come from captions.json (frame-exact). -->
+<div class="hl" id="hl" data-qa="headline">Agenda viva.</div>
+<div class="prova" data-qa="prova" data-qa-required="1"><div id="st">14:30 · <span class="ok">Confirmado</span></div></div>
+<div class="cap" id="cap" data-qa="legenda"></div>
+<script>
+const EXIT = 'down';                 // the corrected version uses 'up'
+const B = { hlIn: [0.1, 0.6], transition: [1.0, 2.0], confirm: 2.4 };
+const FPS = 30, TOTAL = 4.0;
+window.TOTAL = TOTAL;
+window.EVENTS = [{ name: 'confirm', t: B.confirm }];
+window.TIMELINE = { total: TOTAL, scenes: [{ id: 'cena', start: 0, end: TOTAL }], transitions: [{ from: B.transition[0], to: B.transition[1] }], intentional: [] };
+const hl = document.getElementById('hl'), cap = document.getElementById('cap'), st = document.getElementById('st');
+const clamp = v => Math.max(0, Math.min(1, v)), ease = k => 0.5 - 0.5 * Math.cos(Math.PI * clamp(k));
+window.renderAt = t => {
+  const a = ease((t - B.hlIn[0]) / (B.hlIn[1] - B.hlIn[0])), x = ease((t - B.transition[0]) / (B.transition[1] - B.transition[0]));
+  const y = EXIT === 'down' ? 260 + x * 1700 : 260 - x * 520;
+  hl.style.top = y + 'px'; hl.style.opacity = a * (1 - (EXIT === 'down' ? 0 : x));
+  st.style.opacity = t >= B.confirm ? 1 : 0.35;
+  const f = Math.round(t * FPS), line = (window.CAPTIONS.lines || []).find(c => f >= Math.round(c.start * FPS) && f < Math.round(c.end * FPS));
+  cap.textContent = line ? line.text : ''; cap.style.visibility = line ? 'visible' : 'hidden';
+};
+window.ready = (async () => {
+  window.CAPTIONS = await (await fetch('captions.json')).json(); await document.fonts.load('700 96px UI'); renderAt(0); return true;
+})();
+</script></body></html>

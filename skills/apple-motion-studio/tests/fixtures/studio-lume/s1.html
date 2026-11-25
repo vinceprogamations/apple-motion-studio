@@ -1,0 +1,37 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../templates/dom/common.css"><link rel="stylesheet" href="../../../templates/dom/phone.css">
+<style>
+  /* Fixture: 3 required profile-photo slots ("Studio Lume" regression). */
+  .app { position: absolute; inset: 0; padding: 104px 34px 30px; font-family: UI, sans-serif; color: #fff;
+         background: radial-gradient(500px 420px at 80% 0%, rgba(255,138,91,.35), transparent 70%), linear-gradient(180deg, #17110f, #0d0b0c); }
+  .brand { display: flex; align-items: center; gap: 16px; font-size: 30px; font-weight: 700; }
+  .logo { width: 56px; height: 56px; border-radius: 18px; background: linear-gradient(140deg, #FFB08A, #FF6A3D); display: grid; place-items: center; font-weight: 800; font-size: 28px; }
+  .big { font-size: 44px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; margin: 34px 0 0; }
+  .card { margin-top: 22px; border-radius: 30px; padding: 24px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); }
+  .row { display: flex; align-items: center; gap: 18px; font-size: 24px; } .row + .row { margin-top: 20px; }
+  .av { width: 76px; height: 76px; border-radius: 50%; background-size: cover; background-position: center; flex: none; }
+  .t { font-weight: 600; } .s { font-size: 18px; color: rgba(255,255,255,.5); }
+</style></head><body><div class="stage">
+  <div class="phone" style="left:280px;top:420px;transform:perspective(2600px) rotateY(-12deg) rotateX(5deg)">
+    <div class="bez"><div class="scr"><div class="island"></div><div class="refl"></div>
+      <div class="app">
+        <div class="brand"><div class="logo">L</div>Studio Lume</div>
+        <div class="big">Sua agenda<br>de hoje</div>
+        <div class="card">
+          <div class="row" id="r1"><div class="av" data-asset="avatar-ana" style="background-image:url(img/ana.jpg)"></div><div><div class="t">Pilates · Ana</div><div class="s">08:00 · Sala 2</div></div></div>
+          <div class="row" id="r2"><div class="av" data-asset="avatar-bruno" style="background-image:url(img/bruno.jpg)"></div><div><div class="t">Avaliação · Bruno</div><div class="s">09:30 · Sala 1</div></div></div>
+          <div class="row" id="r3"><div class="av" data-asset="avatar-duda" style="background-image:url(img/duda.jpg)"></div><div><div class="t">Pilates · Duda</div><div class="s">11:00 · Sala 2</div></div></div>
+        </div>
+      </div></div></div></div>
+  <div class="hl" style="top:200px">Do seu jeito.</div>
+  <div class="grain"></div>
+</div>
+<script src="../../../templates/motion-core.js"></script><script src="../../../templates/dom/anim.js"></script>
+<script>
+const rows = ['#r1', '#r2', '#r3'].map(s => $(s)), phone = $('.phone');
+window.anim = lt => {
+  setT(phone, `translate(0px, ${(1 - sp(lt, 'heavy')) * 700}px)`, lt > 0 ? 1 : 0);
+  rows.forEach((r, i) => pop(r, lt, 0.5 + i * 0.12, { s0: 0.85, dy: 20, rot: 0, blur: 4 }));
+  titles(lt, 2.5, 0.2);
+};
+</script></body></html>

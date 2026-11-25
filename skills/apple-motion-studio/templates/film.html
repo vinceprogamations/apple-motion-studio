@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Filme</title>
+<style>
+  @font-face { font-family: UI; src: url("fonts/Inter-Variable.ttf"); font-weight: 100 900; }
+  html,body{margin:0;background:#000;height:100%} body{display:flex;align-items:center;justify-content:center} canvas{width:min(100vw,calc(100vh*16/9));aspect-ratio:16/9;display:block}
+</style></head><body><canvas id="c"></canvas>
+<script src="motion-core.js"></script>
+<script src="gl3d.js"></script>
+<script>
+// apple-motion-studio — template de filme (base: Vela). Copie para <filme>-ad/<filme>.html junto com gl3d.js e fonts/Inter-Variable.ttf.
+// Contrato: renderAt(t), TOTAL, ready, EVENTS, ?t= (still), ?scale=2 (4K).
+// A demo (10 s): ponto de luz → cartão de vidro com dial → chips → vira painel 3D e a câmera orbita → o cartão vira o anel do logo.
+// Troque a história, mantenha o kit. Regras: springs Apple, opacidade/blur sem spring, vidro materializa, um acento,
+// câmera monotônica, hold de texto ≥ max(1,2 s; car/12) + 0,3 s, batidas em múltiplos de 0,04 s.
+
+// ---------------------------------------------------------------- batidas (TODAS aqui; múltiplos de 0,04 s)
+const B = {
+  light: [0, 1.2], card: 0.96, dialFill: [1.2, 2.6], chips: [2.0, 2.08, 2.16],
+  hl1: [1.4, 4.0], to3D: 4.4, orbit: [4.4, 7.6], hl2: [4.8, 7.2],
+  toLogo: [7.4, 8.4], logoLand: 8.4, word: 8.6,
+};
+const END = 10, SHUTTER = 0.5 / 25;
+const FAST = [[0.8, 1.4], [7.4, 8.5]];   // janelas com 6 sub-frames de motion blur
+window.EVENTS = [
+  { name: 'light.in', t: B.light[0] }, { name: 'card.lens', t: B.card }, { name: 'dial.fill', t: B.dialFill[0] },
+  ...B.chips.map((t, i) => ({ name: 'chip.' + i, t })), { name: 'to3d', t: B.to3D },
+  { name: 'logo.move', t: B.toLogo[0] }, { name: 'logo.land', t: B.logoLand }, { name: 'word', t: B.word },
+];
+
+// ---------------------------------------------------------------- kit
+const W = 1920, H = 1080, q = new URLSearchParams(location.search), SCALE = parseFloat(q.get('scale') || '1');
+const cv = document.getElementById('c'); cv.width = W * SCALE; cv.height = H * SCALE; const MAIN = cv.getContext('2d'); let ctx = MAIN;
+const mk = () => { const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; return c; };
+const TMP = mk(), ACC = mk(), S3 = GL3D.create(W * SCALE, H * SCALE);
+const clamp01 = v => Math.max(0, Math.min(1, v)), lerp = (a, b, k) => a + (b - a) * k, prog = (t, a, b) => clamp01((t - a) / (b - a));
+const outExpo = k => (k = clamp01(k)) >= 1 ? 1 : 1 - Math.pow(2, -10 * k), outCubic = k => 1 - Math.pow(1 - clamp01(k), 3);
+const inOutCubic = k => { k = clamp01(k); return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }, sine = k => 0.5 - 0.5 * Math.cos(Math.PI * clamp01(k));
+// spring Apple: duration = período perceptual, ζ = 1 − bounce. Forma fechada, 0 → 1.
+// springs come from the single implementation motion-core.js (copy it next to the film, like gl3d.js); same signature as before
+const spring = (t, duration = 0.5, bounce = 0) => MotionCore.value(t, MotionCore.apple(duration, bounce));
+const SPR = { smooth: [0.5, 0], snappy: [0.5, 0.15], quick: [0.3, 0], gentle: [0.8, 0], heavy: [0.9, 0.05], hero: [0.7, 0.3] };   // hero: 1× por filme
+const sp = (t, k) => spring(t, ...SPR[k]);
+const ACCENT = '#FFB547', ACCENT2 = '#FF7A1A', TS = 2;   // UM acento por filme
+const UIF = (wt, px) => `${wt} ${px}px UI, sans-serif`;
+function toWorld(o, p) {
+  let [x, y, z] = p.map(v => v * (o.scale ?? 1)); const [rx, ry, rz] = o.rot || [0, 0, 0];
+  let c = Math.cos(rz), s = Math.sin(rz); [x, y] = [c * x - s * y, s * x + c * y];
+  c = Math.cos(rx); s = Math.sin(rx); [y, z] = [c * y - s * z, s * y + c * z];
+  c = Math.cos(ry); s = Math.sin(ry); [x, z] = [c * x + s * z, -s * x + c * z];
+  return [o.pos[0] + x, o.pos[1] + y, o.pos[2] + z];
+}
+const proj = (pt, cam) => S3.project(pt, cam).map(v => v / SCALE);
+// textura 2D redesenhada só quando os argumentos mudam, usada como painel 3D
+function dpanel(pad, draw) {
+  const c = document.createElement('canvas'); const p = { c, tex: null, key: null, w: 0, h: 0 };
+  p.redraw = (w, h, ...a) => { const key = JSON.stringify([w, h, a]); if (key === p.key && p.tex) return p; p.key = key;
+    const cw = Math.round((w + pad * 2) * TS), ch = Math.round((h + pad * 2) * TS); if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; }
+    const g = c.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cw, ch); g.setTransform(TS, 0, 0, TS, pad * TS, pad * TS);
+    const keep = ctx; ctx = g; draw(w, h, ...a); ctx = keep; p.w = w + pad * 2; p.h = h + pad * 2; if (p.tex) p.tex.update(); else p.tex = S3.texture(c); return p; };
+  return p;
+}
+const P = (pn, o) => Object.assign({ tex: pn.tex, w: pn.w, h: pn.h }, o);
+
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, Math.max(0, Math.min(r, w / 2, h / 2))); }
+function txt(s, x, y, font, color, align = 'left', track = 0) { ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align; ctx.letterSpacing = `${track}px`; ctx.fillText(s, x, y); ctx.letterSpacing = '0px'; }
+// Liquid Glass (corpo): sombra, preenchimento translúcido, borda refratada em gradiente, especular no topo
+function glass(w, h, r) {
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 40 * TS; ctx.shadowOffsetY = 20 * TS; rr(0, 0, w, h, r); ctx.fillStyle = 'rgba(18,14,12,0.36)'; ctx.fill(); ctx.restore();
+  rr(0, 0, w, h, r); const g = ctx.createLinearGradient(0, 0, w * 0.6, h); g.addColorStop(0, 'rgba(255,255,255,0.15)'); g.addColorStop(0.5, 'rgba(255,255,255,0.04)'); g.addColorStop(1, 'rgba(255,255,255,0.08)'); ctx.fillStyle = g; ctx.fill();
+  rr(1, 1, w - 2, h - 2, r); const e = ctx.createLinearGradient(0, 0, w, h); e.addColorStop(0, 'rgba(255,255,255,0.75)'); e.addColorStop(0.3, 'rgba(255,255,255,0.1)'); e.addColorStop(0.65, 'rgba(255,190,120,0.25)'); e.addColorStop(1, 'rgba(255,255,255,0.4)');
+  ctx.lineWidth = 2.2; ctx.strokeStyle = e; ctx.stroke();
+  rr(4, 4, w - 8, h - 8, Math.max(0, r - 4)); const s = ctx.createLinearGradient(0, 0, 0, Math.min(h, 260) * 0.4); s.addColorStop(0, 'rgba(255,255,255,0.45)'); s.addColorStop(1, 'rgba(255,255,255,0)'); ctx.lineWidth = 1.2; ctx.strokeStyle = s; ctx.stroke();
+}
+// vidro 2D com fundo real (blur + saturação + lente ×1,08) — materializa com k 0 → 1
+function glassBackdrop(x, y, w, h, r, k) {
+  ctx.save(); ctx.globalAlpha *= clamp01(k * 1.4); rr(x, y, w, h, r); ctx.clip(); ctx.filter = `blur(${10 * SCALE}px) saturate(1.5) brightness(1.2)`;
+  const m = ctx.getTransform(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(BGS, -cv.width * 0.04, -cv.height * 0.04, cv.width * 1.08, cv.height * 1.08); ctx.setTransform(m); ctx.filter = 'none'; ctx.restore();
+}
+// dial: trilho, arco no acento com brilho suave, número e unidade
+function dial(cx, cy, R, sw, p, val, unit, glowK = 1) {
+  ctx.save(); ctx.lineCap = 'round';
+  for (let i = 0; i < 48; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / 48; ctx.strokeStyle = `rgba(255,255,255,${i % 4 ? 0.07 : 0.16})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * (R + sw * 0.9), cy + Math.sin(a) * (R + sw * 0.9)); ctx.lineTo(cx + Math.cos(a) * (R + sw * 0.9 + 10), cy + Math.sin(a) * (R + sw * 0.9 + 10)); ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = sw; ctx.stroke();
+  if (p > 0.001) { const a0 = -Math.PI / 2, a1 = a0 + Math.PI * 2 * Math.min(p, 1), g = ctx.createLinearGradient(cx - R, cy + R, cx + R, cy - R); g.addColorStop(0, ACCENT2); g.addColorStop(1, '#FFE0A3');
+    if (glowK > 0) { ctx.save(); ctx.globalAlpha = 0.6 * glowK; ctx.filter = `blur(${sw * 0.9 * (ctx === MAIN || ctx.canvas.width === W * SCALE ? SCALE : TS)}px)`; ctx.beginPath(); ctx.arc(cx, cy, R, a0, a1); ctx.strokeStyle = g; ctx.lineWidth = sw * 1.6; ctx.stroke(); ctx.restore(); }
+    ctx.beginPath(); ctx.arc(cx, cy, R, a0, a1); ctx.strokeStyle = g; ctx.lineWidth = sw; ctx.stroke(); }
+  if (val != null) { txt(val, cx, cy + R * 0.16, UIF(600, R * 0.46), '#fff', 'center', -R * 0.02); txt(unit, cx, cy + R * 0.42, UIF(500, R * 0.13), 'rgba(255,255,255,0.55)', 'center'); }
+  ctx.restore();
+}
+// headline palavra por palavra: blur → nítido com subida pequena (outExpo), sai subindo (sine); stagger 2 frames
+function words(text, cx, y, px, tIn, tOut, t, o = {}) {
+  const ws = text.split(' '); ctx.save(); ctx.font = o.font || UIF(600, px); ctx.letterSpacing = `${(o.track ?? -0.03) * px}px`; ctx.textAlign = 'left';
+  const sp2 = ctx.measureText(' ').width, wd = ws.map(w => ctx.measureText(w).width), tot = wd.reduce((a, b) => a + b, 0) + sp2 * (ws.length - 1); let x = cx - tot / 2;
+  ws.forEach((w, i) => { const kin = outExpo((t - tIn - i * 0.08) / 0.9), kout = tOut == null ? 0 : sine((t - tOut - i * 0.04) / 0.45), a = kin * (1 - kout);
+    if (a > 0.003) { const dy = (1 - kin) * 0.45 * px - kout * 0.3 * px, bl = (1 - kin) * 14 + kout * 12; ctx.globalAlpha = a; ctx.filter = bl > 0.2 ? `blur(${bl * SCALE}px)` : 'none';
+      if (o.solid) ctx.fillStyle = o.solid; else { const g = ctx.createLinearGradient(0, y + dy - px * 0.78, 0, y + dy + px * 0.08); g.addColorStop(0, '#fff'); g.addColorStop(0.6, '#fff'); g.addColorStop(1, '#a9a39c'); ctx.fillStyle = g; }
+      ctx.fillText(w, x, y + dy); } x += wd[i] + sp2; });
+  ctx.restore();
+}
+// círculo de toque: aparece (snappy), afunda no toque, onda sai
+function touch(x, y, tA, tP, t) {
+  const kin = sp(t - tA, 'snappy'), kout = sine(prog(t, tP + 0.3, tP + 0.6)); if (kin <= 0 || kout >= 1) return;
+  const press = t < tP ? 0 : (t < tP + 0.08 ? sine((t - tP) / 0.08) : 1 - sp(t - tP - 0.08, 'snappy'));
+  ctx.save(); ctx.globalAlpha = clamp01(kin) * (1 - kout); ctx.beginPath(); ctx.arc(x, y, 34 * (0.7 + 0.3 * kin) * (1 - 0.15 * press), 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.stroke(); ctx.restore();
+  const rk = prog(t, tP, tP + 0.6); if (rk > 0 && rk < 1) { ctx.save(); ctx.globalAlpha = 0.5 * (1 - rk); ctx.beginPath(); ctx.arc(x, y, 36 + 80 * outCubic(rk), 0, Math.PI * 2); ctx.lineWidth = 2.5; ctx.strokeStyle = '#fff'; ctx.stroke(); ctx.restore(); }
+}
+
+// fundo: uma luz-chave quente + preenchimento frio, que se movem devagar; também é o que o vidro refrata
+const BGS = document.createElement('canvas'); BGS.width = 384; BGS.height = 216;
+function paintBG(t, glow = 1, kx = 0.3, ky = 0.25) {
+  const g = BGS.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#050407'; g.fillRect(0, 0, 384, 216); g.globalCompositeOperation = 'lighter';
+  [[kx + 0.05 * Math.sin(t * 0.21), ky + 0.06 * Math.cos(t * 0.17), 0.7, '255,150,60', 0.42], [0.78 + 0.06 * Math.sin(t * 0.13 + 2), 0.75, 0.6, '80,70,170', 0.28], [0.5, 1.05, 0.5, '255,110,40', 0.16]].forEach(([x, y, r, c, a]) => {
+    const gr = g.createRadialGradient(x * 384, y * 216, 0, x * 384, y * 216, r * 384); gr.addColorStop(0, `rgba(${c},${a * glow})`); gr.addColorStop(1, `rgba(${c},0)`); g.fillStyle = gr; g.fillRect(0, 0, 384, 216); });
+  g.globalCompositeOperation = 'source-over';
+}
+function bg(t, glow) { paintBG(t, glow); ctx.drawImage(BGS, 0, 0, W, H); }
+// partículas de profundidade (seed fixa = determinístico)
+const PARTS = (() => { let s = 9871; const r = () => (s = (s * 16807) % 2147483647) / 2147483647; return Array.from({ length: 70 }, () => ({ x: r() * W, y: r() * H, v: 14 + r() * 40, d: r(), ph: r() * 6.28 })); })();
+function particles(t, k = 1) {
+  if (k <= 0) return; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  PARTS.forEach(p => { const y = ((p.y - t * p.v) % H + H) % H, x = p.x + 18 * Math.sin(t * 0.4 + p.ph), r = 1.2 + p.d * p.d * 7, a = (0.15 + 0.45 * (1 - p.d)) * k * (0.6 + 0.4 * Math.sin(t * 1.3 + p.ph));
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3); g.addColorStop(0, `rgba(255,200,140,${a})`); g.addColorStop(1, 'rgba(255,150,60,0)'); ctx.fillStyle = g; ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6); });
+  ctx.restore();
+}
+// chip de vidro 2D (ícone + rótulo + valor) que materializa com k
+function chip2D(x, y, w, h, k, icon, label, val) {
+  if (k <= 0) return; const s = lerp(0.6, 1, k); ctx.save(); ctx.globalAlpha = clamp01(k * 1.4); ctx.translate(x, y); ctx.scale(s, s); ctx.translate(-w / 2, -h / 2);
+  glassBackdrop(0, 0, w, h, h / 2, 1);
+  ctx.filter = (1 - k) > 0.02 ? `blur(${(1 - k) * 10 * SCALE}px)` : 'none'; glass(w, h, h / 2);
+  icon(h / 2, h / 2, h * 0.28); txt(label, h + 2, h / 2 - 4, UIF(500, 17), 'rgba(255,255,255,0.6)'); txt(val, h + 2, h / 2 + 20, UIF(700, 22), '#fff'); ctx.restore();
+}
+const ICON = {
+  sun: (x, y, r) => { ctx.save(); ctx.fillStyle = ACCENT; ctx.strokeStyle = ACCENT; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x, y, r * 0.45, 0, 7); ctx.fill(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r * 0.7, y + Math.sin(a) * r * 0.7); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke(); } ctx.restore(); },
+  dot: (x, y, r) => { ctx.save(); ctx.fillStyle = ACCENT; ctx.beginPath(); ctx.arc(x, y, r * 0.5, 0, 7); ctx.fill(); ctx.restore(); },
+  bell: (x, y, r) => { ctx.save(); ctx.fillStyle = ACCENT; ctx.beginPath(); ctx.moveTo(x - r * 0.8, y + r * 0.5); ctx.quadraticCurveTo(x - r * 0.8, y - r, x, y - r); ctx.quadraticCurveTo(x + r * 0.8, y - r, x + r * 0.8, y + r * 0.5); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.arc(x, y + r * 0.75, r * 0.22, 0, 7); ctx.fill(); ctx.restore(); },
+};
+// fluxo tracejado correndo por uma curva (energia, dados)
+function flow(x0, y0, x1, y1, bend, t, k) { if (k <= 0) return; const mx = (x0 + x1) / 2 + bend[0], my = (y0 + y1) / 2 + bend[1];
+  ctx.save(); ctx.globalAlpha = k; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(mx, my, x1, y1); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.setLineDash([6, 18]); ctx.lineDashOffset = -t * 70; ctx.strokeStyle = 'rgba(255,190,110,0.85)'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke(); ctx.restore(); }
+// vidro 3D: fundo refratado dentro do contorno projetado do painel
+function outline(gw, gh, r, n = 6) { const pts = [], cs = [[gw / 2 - r, gh / 2 - r, 0], [-gw / 2 + r, gh / 2 - r, 1], [-gw / 2 + r, -gh / 2 + r, 2], [gw / 2 - r, -gh / 2 + r, 3]];
+  cs.forEach(([cx, cy, q2]) => { for (let i = 0; i <= n; i++) { const a = (q2 + i / n) * Math.PI / 2; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a), 0]); } }); return pts; }
+function glassUnder(p, c) {
+  const G = p.glass, o = { pos: p.pos, rot: p.rot, scale: p.scale ?? 1 }, pts = outline(G.w, G.h, Math.min(G.r, G.w / 2, G.h / 2), 8).map(v => proj(toWorld(o, v), c));
+  const cx = pts.reduce((s, v) => s + v[0], 0) / pts.length, cy = pts.reduce((s, v) => s + v[1], 0) / pts.length;
+  ctx.save(); ctx.globalAlpha = (p.alpha ?? 1) * (G.k ?? 1); ctx.beginPath(); pts.forEach((v, i) => i ? ctx.lineTo(v[0], v[1]) : ctx.moveTo(v[0], v[1])); ctx.closePath(); ctx.clip();
+  const m = 1.14; ctx.filter = `blur(${10 * SCALE}px) saturate(1.5) brightness(1.2)`; ctx.drawImage(BGS, cx - cx * m, cy - cy * m, W * m, H * m); ctx.filter = 'none'; ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fillRect(0, 0, W, H); ctx.restore();
+}
+const CAMD = 1600, FOV = 2 * Math.atan(540 / CAMD) * 180 / Math.PI;   // a 1600 de distância, 1 unidade ≈ 1 px no plano z = 0
+function cam(orbit = 0, push = 0, lift = 0) { const D = CAMD - push; return { eye: [D * Math.sin(orbit), lift, D * Math.cos(orbit)], target: [0, 0, 0], fov: FOV, focus: D, aperture: 0.7, fog: { near: 2400, far: 3800, color: [0.02, 0.016, 0.03] } }; }
+function render3D(panels, c) { panels.forEach(p => { if (p && p.glass && (p.alpha ?? 1) > 0.01) glassUnder(p, c); }); ctx.drawImage(S3.render(panels, c), 0, 0, W, H); }
+
+// ---------------------------------------------------------------- texturas da demo
+const CARD = 520;
+function drawCard(w, h, r, fill, val, content) {   // o mesmo desenho serve para o 2D (ctx principal) e para a textura 3D
+  glass(w, h, r); if (content <= 0.01) return; ctx.save(); ctx.globalAlpha = content;
+  txt('Energia hoje', 40, 62, UIF(500, 24), 'rgba(255,255,255,0.6)'); dial(w / 2, h / 2 + 30, w * 0.27, 22, fill, val, 'kWh agora'); ctx.restore();
+}
+const T = {};
+function build() { T.card = dpanel(60, drawCard);
+  T.grain = [0, 1, 2, 3].map(seed => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'), im = g.createImageData(256, 256); let s = 1234 + seed * 999; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < im.data.length; i += 4) { const v = rnd() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } g.putImageData(im, 0, 0); return c; }); }
+
+// ---------------------------------------------------------------- a história (uma câmera contínua)
+const fillAt = t => 0.72 * sp(t - B.dialFill[0], 'heavy'), valAt = t => (4.2 * outExpo(prog(t, ...B.dialFill))).toFixed(1).replace('.', ',');
+function frame(t) {
+  ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none'; ctx.globalCompositeOperation = 'source-over';
+  bg(t, clamp01(0.25 + t / 2.5)); particles(t, clamp01(t / 1.2) * (1 - 0.6 * prog(t, ...B.toLogo)));
+  const toLogo = inOutCubic(prog(t, ...B.toLogo));
+  if (t < B.to3D) {
+    // 1. ponto de luz que abre (2D) → 2. cartão de vidro materializa a partir dele, com push lento de câmera
+    const push = 1 + 0.04 * sine(prog(t, 0, B.to3D)); ctx.save(); ctx.translate(960, 540); ctx.scale(push, push); ctx.translate(-960, -540);
+    const lk = sp(t - B.light[0], 'gentle'), lr = lerp(4, 90, lk) * (1 - 0.6 * prog(t, B.card, B.card + 0.5));
+    const lg = ctx.createRadialGradient(960, 560, 0, 960, 560, lr * 3); lg.addColorStop(0, 'rgba(255,230,190,0.95)'); lg.addColorStop(0.25, 'rgba(255,170,80,0.5)'); lg.addColorStop(1, 'rgba(255,120,40,0)');
+    ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
+    const ck = sp(t - B.card, 'snappy');
+    if (ck > 0) { const s = lerp(0.6, 1, ck); ctx.save(); ctx.translate(960, 560); ctx.scale(s, s); ctx.translate(-CARD / 2, -CARD / 2);
+      glassBackdrop(0, 0, CARD, CARD, 56, ck); ctx.globalAlpha = clamp01(ck * 1.4); ctx.filter = (1 - ck) > 0.02 ? `blur(${(1 - ck) * 16 * SCALE}px)` : 'none';
+      drawCard(CARD, CARD, 56, fillAt(t), valAt(t), clamp01((t - B.card - 0.2) / 0.4)); ctx.restore(); }
+    // chips em cascata (2 frames) + fluxos para o foco
+    [['Solar', '18,4 kWh', ICON.sun, 520, 420], ['Rede', '2,1 kWh', ICON.dot, 1400, 470], ['Alerta', 'às 18h', ICON.bell, 1380, 720]].forEach(([lab, v, ic, x, y], i) => {
+      const k = sp(t - B.chips[i], 'snappy'); flow(x, y, 960, 560, [0, -60], t, 0.8 * clamp01(k) * (1 - prog(t, B.to3D - 0.3, B.to3D))); chip2D(x, y, 230, 76, k * (1 - prog(t, B.to3D - 0.3, B.to3D)), ic, lab, v); });
+    ctx.restore();
+    words('Sua energia, num olhar.', 960, 190, 76, B.hl1[0], B.hl1[1], t);
+  } else {
+    // 3. o mesmo cartão vira painel 3D (mesmo tamanho na tela no frame da troca) e a câmera orbita, só num sentido
+    const ok = sine(prog(t, ...B.orbit)), c = cam(lerp(0, 0.42, ok), lerp(0, 220, ok) - 260 * toLogo, lerp(0, 60, ok));
+    const size = lerp(CARD, 300, toLogo), r = lerp(56, size / 2, toLogo), content = 1 - clamp01(toLogo * 2.5);
+    T.card.redraw(size, size, r, fillAt(t), valAt(t), content);
+    const push0 = 1 + 0.04;   // casa com o push 2D no frame da troca
+    render3D([P(T.card, { pos: [0, -20, 0], rot: [0, lerp(0, 0.42, ok), 0], scale: push0 * (1 - 0.35 * toLogo), alpha: 1, bias: 2, sheen: 0.12, sheenPos: (t * 0.3) % 1.6 - 0.3, glass: { w: size, h: size, r, k: 1 } })], c);
+    // anel do logo desenhado por cima quando o cartão vira círculo
+    if (toLogo > 0.6) { const k = prog(t, B.toLogo[1] - 0.4, B.logoLand); ctx.save(); ctx.globalAlpha = k; ctx.lineWidth = 16; const g = ctx.createLinearGradient(860, 440, 1060, 640); g.addColorStop(0, ACCENT2); g.addColorStop(1, '#FFE0A3'); ctx.strokeStyle = g; ctx.beginPath(); ctx.arc(960, 520, 84, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+    words('Tudo no seu ritmo.', 960, 190, 76, B.hl2[0], B.hl2[1], t);
+    words('Marca', 960, 760, 64, B.word, null, t, { font: UIF(700, 64) });
+    words('Em breve.', 960, 830, 30, B.word + 0.3, null, t, { font: UIF(500, 30), solid: 'rgba(255,255,255,0.6)', track: 0 });
+  }
+}
+
+// ---------------------------------------------------------------- render: motion blur por sub-frames só onde é rápido + grão animado
+let built = false;
+function render(t) {
+  if (!built) { build(); built = true; }
+  const n = FAST.some(([a, b]) => t >= a && t <= b) ? 6 : 2, A = ACC.getContext('2d'); A.setTransform(1, 0, 0, 1, 0, 0); A.globalAlpha = 1; A.clearRect(0, 0, ACC.width, ACC.height);
+  for (let i = 0; i < n; i++) { const ts = Math.max(0, Math.min(END - 0.001, t + (i / (n - 1) - 0.5) * SHUTTER)); ctx = TMP.getContext('2d'); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.clearRect(0, 0, TMP.width, TMP.height); frame(ts); A.globalAlpha = 1 / (i + 1); A.drawImage(TMP, 0, 0); }
+  ctx = MAIN; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(ACC, 0, 0);
+  const fi = Math.floor(t * 25), pat = ctx.createPattern(T.grain[fi % 4], 'repeat'); pat.setTransform(new DOMMatrix().translate((fi * 73) % 256, (fi * 131) % 256).scale(SCALE));
+  ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = 0.06; ctx.fillStyle = pat; ctx.fillRect(0, 0, cv.width, cv.height); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+}
+window.TOTAL = END; window.renderAt = t => render(t);
+window.ready = document.fonts.load(UIF(600, 40)).catch(() => {}).then(() => { if (q.has('t')) render(parseFloat(q.get('t'))); else (function tick(n) { render((n / 1000) % END); requestAnimationFrame(tick); })(0); return true; });
+</script></body></html>

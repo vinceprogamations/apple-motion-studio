@@ -1,0 +1,28 @@
+/* light, realistic product UI (modelled on the user's reference system) */
+.lui { position: absolute; inset: 0; background: #F6F7F9; color: #16181D; font-family: UI, sans-serif; overflow: hidden; }
+.lui .top { display: flex; align-items: center; gap: 12px; padding: 78px 24px 14px; background: #fff; border-bottom: 1px solid #E7E9EE; font-weight: 700; font-size: 20px; }
+.lui .mark { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 18px; }
+.lui .demo { margin-left: auto; font-size: 13px; font-weight: 700; color: #1C5FD4; border: 1.5px solid #9CC0F5; background: #EEF4FE; border-radius: 16px; padding: 6px 10px; }
+.lui .hero { margin: 16px 18px; border-radius: 22px; padding: 20px; position: relative; overflow: hidden; border: 1px solid #E3E5EA; background: #fff; min-height: 220px; }
+.lui .hero .bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.lui .hero .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,.97) 0%, rgba(255,255,255,.9) 48%, rgba(255,255,255,.2) 100%); }
+.lui .hero > *:not(.bg) { position: relative; }
+.lui .k { font-size: 13px; color: #5C6270; font-weight: 600; }
+.lui h3 { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; margin: 8px 0 6px; }
+.lui p { font-size: 15px; color: #3B404B; line-height: 1.35; max-width: 220px; }
+.lui .btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 11px 16px; border-radius: 14px; border: 1px solid #D9DCE3; background: #fff; font-size: 15px; font-weight: 600; }
+.lui .sec { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 20px 8px; font-size: 17px; font-weight: 800; }
+.lui .sec small { font-size: 12px; color: #6A707C; font-weight: 500; }
+.lui .item { margin: 0 18px 10px; background: #fff; border: 1px solid #E3E5EA; border-radius: 18px; display: flex; align-items: center; gap: 12px; padding: 14px; border-left: 4px solid var(--b); }
+.lui .item .ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--bg); }
+.lui .item .l1 { font-size: 13px; color: #5C6270; } .lui .item .l2 { font-size: 14px; color: #2A2E36; margin-top: 2px; }
+.lui .item .l3 { font-size: 14px; color: #1C5FD4; font-weight: 700; margin-top: 4px; }
+.lui .item .v { margin-left: auto; font-size: 22px; font-weight: 800; }
+.lui .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 18px; }
+.lui .kpi { background: #fff; border: 1px solid #E3E5EA; border-radius: 18px; padding: 14px; border-top: 4px solid var(--b); }
+.lui .kpi .n { font-size: 28px; font-weight: 800; margin: 6px 0 8px; }
+.lui .kpi .bar { height: 8px; border-radius: 4px; background: #E6EAF0; } .lui .kpi .bar i { display: block; height: 100%; border-radius: 4px; background: var(--b); }
+.lui .nav { position: absolute; left: 0; right: 0; bottom: 0; height: 88px; background: #fff; border-top: 1px solid #E3E5EA; display: flex; justify-content: space-around; align-items: center; font-size: 12px; font-weight: 600; color: #3B404B; padding-bottom: 8px; }
+.lui .nav div { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 14px; }
+.lui .nav .on { background: #EAF2FE; color: #1C5FD4; }
+.av { border-radius: 50%; background-size: cover; background-position: center; background-color: #ccd; }

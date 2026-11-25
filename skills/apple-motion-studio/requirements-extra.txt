@@ -1,0 +1,5 @@
+# Optional extras (not needed for the free core path or the demo):
+#   opencv-python  -> key.py / split.py / grid.py (2D puppet and keying tools)
+#   pyloudnorm     -> second loudness meter, independent of ffmpeg
+opencv-python==4.11.0.86
+pyloudnorm==0.1.1

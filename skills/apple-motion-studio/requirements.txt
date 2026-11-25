@@ -1,0 +1,6 @@
+# Apple Motion Studio — CORE Python dependencies, pinned (verified on Windows 11, Python 3.11.2, 2026-11-25).
+# The setup script installs them into a local .venv:  python scripts/setup.py   (idempotent)
+Pillow==11.1.0
+numpy==2.2.2
+scipy==1.17.1
+PyYAML==6.0.4
