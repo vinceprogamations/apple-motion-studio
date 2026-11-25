@@ -19,6 +19,18 @@ termina na escolha do usuário. Mesmo numa execução não interativa, **não pr
 4. **No máximo uma pergunta de briefing** que mude o filme (ex.: público na plateia ou envio por WhatsApp). O resto você decide depois.
 
 Com "faz tudo aí", pule esta etapa e produza. Com "sem cases", produza sem citar o catálogo.
+Se o usuário mandou material (logo, prints, fotos), rode `python scripts/material.py checar <arquivos>` antes e, se algo vier
+fraco ou com licença que não cobre este filme (ex.: logo de outra marca), peça o arquivo certo **numa linha** (ex.: "mande o logo em SVG: o PNG de 300 px fica mole no fecho").
+
+## Relacionamento com o usuário (avisos que nunca são pulados) — `references/relacionamento.md`
+- **Combinado antes de produzir:** `python scripts/conversa.py abertura <projeto> "<pedido>" --material <arquivos> --mcp <ferramentas que você vê>`.
+  Diz como vamos trabalhar, que material melhora o filme, o que será instalado, o custo, o uso do navegador e o que você não consegue
+  fazer (não assiste nem ouve em tempo real). No modo autônomo, vira uma linha na entrega.
+- **Instalar, baixar, gastar, usar o navegador do usuário = permissão, nunca gosto.** "Faz tudo aí" não cobre. Mostre o plano
+  (`python scripts/ambiente.py plano` / `aviso --site …`), espere o sim e só então `ambiente.py instalar faltando --sim "<palavras dele>"`.
+  Ferramenta paga (ElevenLabs, Higgsfield, Runway…): pedido explícito + estimativa da própria ferramenta + sim para o valor.
+- **Entrega honesta:** `python scripts/conversa.py entrega <master.mp4>` — o que a máquina verificou, o que ninguém verificou,
+  onde olhar (tempo → cena), o que limita a nitidez e como pedir mudança (tempo + ação). QA ok ≠ filme bom; nunca diga "ficou ótimo".
 
 Comandos abaixo partem da pasta da skill; `python` = o `.venv` da skill (criado por `python scripts/setup.py`, que é idempotente) ou o do projeto.
 
@@ -74,6 +86,7 @@ zero. Uma nova sessão retoma por `studio.py state show <projeto>`.
 | som, trilha, voz, licenças | `references/sound.md`, `references/autonomia.md` | `mix.py --stems`, `music_pick.py`, `synth_music.py`, `finish.py`, `qa_audio.py` |
 | legendas, texto sobre transições | `references/qa.md` § Composição | `captions.py`, `render_dom.mjs layout` |
 | Open Design, Higgsfield, Artlist, imagens assistidas, Adobe | `references/integracoes.md` | `studio.py doctor` |
+| instalar programas, ferramentas pagas/MCP, baixar pelo navegador, material do usuário | `references/relacionamento.md`, `references/ferramentas.json` | `ambiente.py`, `material.py`, `conversa.py` |
 | algo quebrado | `references/pitfalls.md`, `references/qa.md` | `scripts/qa_frames.py`, logs `.report.json` |
 Registre no estado do projeto (`BEATS.md` / `CREDITOS.txt` / manifesto) o que foi usado.
 
@@ -106,7 +119,7 @@ python scripts/studio.py sync && python scripts/studio.py validate      # depois
 - Nunca use nome, fonte SF, sons ou copy da Apple; nunca desenhe logo real de memória; claims só verdadeiros; fotos geradas = pessoas fictícias, nunca apresentadas como clientes reais. Fotos de pessoas reais só com autorização registrada no manifesto.
 
 ## Scripts
-`render.mjs` (canvas, `dump`) · `render_dom.mjs` (DOM, portões, `stills/video/events/timeline/check/layout`) · `qa_audio.py` · `captions.py` · `music_pick.py` · `synth_music.py` · `qa_frames.py` · `studio.py`
+`ambiente.py` (plano/instalar/mcp/aviso) · `material.py` · `conversa.py` (abertura/entrega) · `render.mjs` (canvas, `dump`) · `render_dom.mjs` (DOM, portões, `stills/video/events/timeline/check/layout`) · `qa_audio.py` · `captions.py` · `music_pick.py` · `synth_music.py` · `qa_frames.py` · `studio.py`
 (`doctor/sync/validate/promote/state/public`) · `assets.py` · `mix.py` · `finish.py` · `music_scan.py` · `split_logo.py` · `contact_sheet.py`
 / `sheet916.py` · `gl3d.js` · `puppet.js` · `key.py` / `split.py` / `grid.py` · `synth_sfx.py` · `blender/` · `compose_into_clip.py` ·
 `lib/tools.{mjs,py}` (acha FFmpeg/Chrome/Blender). Testes: `tests/run_*.py` (as evidências ficam em tests/evidence na cópia canônica e não são distribuídas).

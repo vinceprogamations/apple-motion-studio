@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.2.0 — 2026-11-25
+**Relacionamento com o usuário:** a skill diz antes o que vai instalar, baixar, gastar e fazer no navegador, e na entrega separa o que foi medido do que ninguém viu.
+- **`scripts/ambiente.py`**:
+  - `plano`: o que falta, com tamanho, origem e comando;
+  - `instalar faltando --sim "<palavras do usuário>"`: winget ou brew, com o consentimento registrado em `.local/`; sem o sim, nada é instalado;
+  - `mcp`: classifica as ferramentas conectadas em pagas, freemium ou grátis; conector desconhecido = pago;
+  - `aviso`: o bloco único de avisos.
+- **`references/ferramentas.json`**: registro de programas, serviços (custo, quando usar, aviso) e sites (licença e regra de download).
+- **`scripts/material.py checar`**:
+  - mede se logo, foto, tela, vídeo e áudio aguentam a resolução do filme e diz o que pedir;
+  - lê a licença no `asset-manifest.json` e barra material de outra marca ou de uso restrito.
+- **`scripts/conversa.py`**:
+  - `abertura`: o combinado com modo, material, instalação, custo, navegador, limites e formato de nota;
+  - `entrega`: QA medido × não verificado, onde olhar (tempo → cena), o que limita a nitidez e como pedir mudança.
+- **`references/relacionamento.md`**: os cinco momentos de comunicação. Instalar, baixar, gastar e usar o navegador são permissões e nunca contam como delegadas.
+- **Delegação**: "pode instalar" vira `constraints.instalar`; "faz tudo aí" não autoriza instalar.
+- **`casos.py` no modo autônomo** aplica e registra a referência sem perguntar.
+- **`pitfalls.md`**: fonte em fallback, duas animações na mesma propriedade, texto inventado, "pronto" sem ver.
+- **Testes**: `tests/run_relacionamento.py` (16 checagens).
+
 ## v1.1.0 — 2026-11-25
 - **Estudos de caso:**
   - catálogo com 14 fichas e índice em `references/casos/`;

@@ -2,7 +2,8 @@
 #   python scripts/setup.py [--extras] [--deep]
 # 1. finds what already exists (Node, FFmpeg/ffprobe, Chrome/Chromium — also outside PATH; Blender optional)
 # 2. creates <skill>/.venv (only if missing) and installs the pinned core packages (requirements.txt); --extras adds requirements-extra.txt
-# 3. runs the doctor and prints the next command. It never installs system programs: for a missing one it prints the command.
+# 3. runs the doctor and prints the next command. It never installs system programs by itself: for a missing one it prints the
+#    plan; scripts/ambiente.py instalar --sim "<user's words>" installs them after the user says yes.
 import os, sys, subprocess, shutil, platform, json, datetime
 HERE = os.path.dirname(os.path.abspath(__file__)); SKILL = os.path.dirname(HERE)
 sys.path.insert(0, HERE); from lib.tools import find_tool; from lib.venv import venv_python
@@ -40,6 +41,7 @@ def main():
         for k, what in missing:
             if k in seen: continue
             seen.add(k); print(f'  - {what}:  {HINT.get(k, "instale pelo site oficial")}')
+        print('Com o sim do usuário, eu mesmo instalo:  python scripts/ambiente.py instalar faltando --sim "<palavras dele>"')
         print('Depois rode  python scripts/setup.py  de novo.')
     print('\n--- diagnóstico ---'); d = subprocess.run([py, os.path.join(HERE, 'studio.py'), 'doctor'] + (['--deep'] if deep else []))
     json.dump({'setup': datetime.datetime.now().isoformat(timespec='seconds'), 'python': py, 'missing': [m[0] for m in missing]}, open(os.path.join(SKILL, '.venv', 'setup.json'), 'w'))

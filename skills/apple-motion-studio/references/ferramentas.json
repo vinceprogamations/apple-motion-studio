@@ -1,0 +1,365 @@
+{
+ "_sobre": "Registro do que a skill pode instalar, conectar ou usar no navegador, com custo e aviso. Lido por scripts/ambiente.py. Preços mudam: confira na página oficial no dia do uso; 'visto_em' é a data da última conferência.",
+ "programas": [
+  {
+   "id": "node",
+   "nome": "Node.js LTS",
+   "perfil": "core",
+   "por_que": "roda os renderizadores (render_dom.mjs, render.mjs)",
+   "mb": 30,
+   "custo": "grátis",
+   "fonte": "https://nodejs.org",
+   "win": "winget install -e --id OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements",
+   "mac": "brew install node",
+   "linux": "sudo apt install -y nodejs"
+  },
+  {
+   "id": "ffmpeg",
+   "nome": "FFmpeg (inclui ffprobe)",
+   "perfil": "core",
+   "por_que": "monta o MP4, mede e mistura o áudio",
+   "mb": 90,
+   "custo": "grátis",
+   "fonte": "https://www.gyan.dev/ffmpeg/builds/",
+   "win": "winget install -e --id Gyan.FFmpeg --accept-package-agreements --accept-source-agreements",
+   "mac": "brew install ffmpeg",
+   "linux": "sudo apt install -y ffmpeg"
+  },
+  {
+   "id": "chrome",
+   "nome": "Google Chrome",
+   "perfil": "core",
+   "por_que": "desenha cada quadro (modo headless, invisível)",
+   "mb": 120,
+   "custo": "grátis",
+   "fonte": "https://www.google.com/chrome/",
+   "win": "winget install -e --id Google.Chrome --accept-package-agreements --accept-source-agreements",
+   "mac": "brew install --cask google-chrome",
+   "linux": "sudo apt install -y chromium"
+  },
+  {
+   "id": "blender",
+   "nome": "Blender",
+   "perfil": "3d",
+   "por_que": "produto físico fotorrealista (vidro, metal, luz real)",
+   "mb": 400,
+   "custo": "grátis",
+   "fonte": "https://www.blender.org/download/",
+   "win": "winget install -e --id BlenderFoundation.Blender --accept-package-agreements --accept-source-agreements",
+   "mac": "brew install --cask blender",
+   "linux": "sudo snap install blender --classic"
+  },
+  {
+   "id": "py-audio",
+   "nome": "pacotes Python extras (opencv, pyloudnorm)",
+   "perfil": "extra",
+   "por_que": "recorte de ilustração 2D e segundo medidor de loudness",
+   "mb": 100,
+   "custo": "grátis",
+   "fonte": "https://pypi.org",
+   "pip": "requirements-extra.txt"
+  }
+ ],
+ "servicos": [
+  {
+   "id": "elevenlabs",
+   "nome": "ElevenLabs (voz, efeitos, música)",
+   "padroes": [
+    "elevenlabs",
+    "generate_speech",
+    "design_voice",
+    "creative_generate"
+   ],
+   "custo": "pago",
+   "cobra": "créditos: plano grátis ≈ 10 mil/mês (≈ 10 min de voz), sem uso comercial; MCP oficial hospedado em api.elevenlabs.io/v1/mcp",
+   "quando": "locução quando o usuário pedir voz e não houver locutor",
+   "aviso": "som gerado por IA: este projeto prefere gravações reais; só com pedido explícito e estimativa",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "higgsfield",
+   "nome": "Higgsfield (vídeo/imagem generativos)",
+   "padroes": [
+    "higgsfield",
+    "generate_video",
+    "estimate_video_cost",
+    "ads_studio",
+    "ai_influencer",
+    "gpu_rent"
+   ],
+   "custo": "pago",
+   "cobra": "desconta do plano do usuário (MCP) ou de saldo pré-pago (API); a própria ferramenta estima antes",
+   "quando": "um plano que precisa de filmagem que o código não faz",
+   "aviso": "rode a estimativa da própria ferramenta e mostre o valor antes",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "canva",
+   "nome": "Canva",
+   "padroes": [
+    "canva",
+    "generate-design",
+    "create-design",
+    "export-design"
+   ],
+   "custo": "freemium",
+   "cobra": "recursos Pro e geração por IA dependem do plano",
+   "quando": "peças estáticas de apoio (thumb, capa); não renderiza o filme",
+   "aviso": "não necessário para o vídeo",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "runway",
+   "nome": "Runway",
+   "padroes": [
+    "runway"
+   ],
+   "custo": "pago",
+   "cobra": "API ≈ US$ 0,05/s (Gen-4 Turbo) a US$ 0,12/s (Gen-4.5) — ≈ US$ 3 a 7 por minuto",
+   "quando": "filmagem generativa",
+   "aviso": "estimativa antes",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "suno",
+   "nome": "Suno / Udio (música por IA)",
+   "padroes": [
+    "suno",
+    "udio"
+   ],
+   "custo": "pago",
+   "cobra": "créditos; licença comercial só em plano pago",
+   "quando": "nunca por padrão: música é escolhida no acervo licenciado ou composta pelo synth_music.py",
+   "aviso": "música por IA soa genérica e tem licença restrita",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "heygen",
+   "nome": "HeyGen / avatares",
+   "padroes": [
+    "heygen",
+    "avatar",
+    "hyperframes"
+   ],
+   "custo": "pago",
+   "cobra": "créditos por minuto",
+   "quando": "apresentador falando, se o usuário pedir",
+   "aviso": "pessoa sintética deve ser declarada",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "openai-imagens",
+   "nome": "ChatGPT / OpenAI Images",
+   "padroes": [
+    "openai",
+    "dall",
+    "gpt-image",
+    "chatgpt"
+   ],
+   "custo": "freemium",
+   "cobra": "conta do usuário (limites do plano) ou API por imagem",
+   "quando": "fotos de vaga (pessoa fictícia, ambiente) em modo assistido",
+   "aviso": "foto gerada = pessoa fictícia, nunca cliente real",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "adobe",
+   "nome": "Adobe (After Effects, Firefly, Stock)",
+   "padroes": [
+    "adobe",
+    "firefly",
+    "after effects",
+    "premiere"
+   ],
+   "custo": "pago",
+   "cobra": "assinatura",
+   "quando": "projeto editável exigido pelo cliente",
+   "aviso": "fora do caminho padrão",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "artlist",
+   "nome": "Artlist / Epidemic Sound",
+   "padroes": [
+    "artlist",
+    "epidemic"
+   ],
+   "custo": "pago",
+   "cobra": "assinatura; licença ligada à conta",
+   "quando": "faixa de catálogo que o usuário já assina",
+   "aviso": "a licença é do usuário, confira o destino",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "lottiefiles",
+   "nome": "LottieFiles Creator MCP",
+   "padroes": [
+    "lottie"
+   ],
+   "custo": "freemium",
+   "cobra": "conforme conta",
+   "quando": "só se a entrega for Lottie",
+   "aviso": "não necessário para MP4",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "figma",
+   "nome": "Figma MCP",
+   "padroes": [
+    "figma"
+   ],
+   "custo": "freemium",
+   "cobra": "Dev Mode/MCP depende do plano",
+   "quando": "ler a UI real do produto do usuário",
+   "aviso": "só leitura do arquivo dele",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "blender-mcp",
+   "nome": "Blender MCP",
+   "padroes": [
+    "blender"
+   ],
+   "custo": "grátis",
+   "cobra": "—",
+   "quando": "cena 3D interativa; o render da skill não depende dele",
+   "aviso": "executa código no Blender: só cenas do projeto",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "drive",
+   "nome": "Google Drive / Docs",
+   "padroes": [
+    "google drive",
+    "read_file_content",
+    "search_files"
+   ],
+   "custo": "grátis",
+   "cobra": "—",
+   "quando": "buscar material da marca que o usuário apontar",
+   "aviso": "leio só o que ele indicar",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "computer-use",
+   "nome": "Controle do computador (computer use)",
+   "padroes": [
+    "computer-use"
+   ],
+   "custo": "grátis",
+   "cobra": "—",
+   "quando": "abrir um app nativo que não tem outro caminho (ex.: Blender com janela)",
+   "aviso": "peço acesso por aplicativo; navegador e terminal ficam restritos",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "desktop-commander",
+   "nome": "Desktop Commander",
+   "padroes": [
+    "desktop-commander",
+    "desktop_commander"
+   ],
+   "custo": "grátis",
+   "cobra": "—",
+   "quando": "arquivos e processos locais",
+   "aviso": "só dentro das pastas do projeto",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "remotion",
+   "nome": "Remotion (skills/Studio)",
+   "padroes": [
+    "remotion"
+   ],
+   "custo": "freemium",
+   "cobra": "grátis para pessoa física e empresas pequenas; licença de empresa acima disso (remotion.pro)",
+   "quando": "só se o usuário já trabalha em Remotion",
+   "aviso": "o caminho da skill não depende dele",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "genmedia",
+   "nome": "Google GenMedia / Veo, Kling",
+   "padroes": [
+    "genmedia",
+    "veo",
+    "kling",
+    "imagen"
+   ],
+   "custo": "pago",
+   "cobra": "≈ US$ 0,08–0,10 por segundo de vídeo gerado",
+   "quando": "filmagem generativa",
+   "aviso": "estimativa antes",
+   "visto_em": "2026-11-25"
+  },
+  {
+   "id": "navegador",
+   "nome": "Claude in Chrome / navegador embutido",
+   "padroes": [
+    "claude-in-chrome",
+    "claude_browser"
+   ],
+   "custo": "grátis",
+   "cobra": "—",
+   "quando": "baixar trilhas, vídeos e efeitos de sites com licença clara, um a um",
+   "aviso": "abro uma aba nova, digo o site e o arquivo; nunca senha, CAPTCHA ou compra",
+   "visto_em": "2026-11-25"
+  }
+ ],
+ "sites": [
+  {
+   "id": "pexels",
+   "nome": "Pexels (vídeo e foto)",
+   "licenca": "Pexels License: uso comercial sem crédito; não revender o arquivo puro",
+   "regra": "botão oficial 'Free download', poucos itens"
+  },
+  {
+   "id": "pixabay",
+   "nome": "Pixabay (música, efeitos)",
+   "licenca": "Pixabay Content License; Content ID em algumas faixas; não redistribuir o arquivo puro",
+   "regra": "proíbe robôs: um clique por faixa no Chrome do usuário logado, espere ~6 s antes de sair da página"
+  },
+  {
+   "id": "freesound",
+   "nome": "Freesound",
+   "licenca": "por arquivo: CC0, CC BY (crédito) ou CC BY-NC (sem uso comercial)",
+   "regra": "leia a licença de cada som; baixar exige login; a API é só para uso não comercial"
+  },
+  {
+   "id": "fma",
+   "nome": "Free Music Archive",
+   "licenca": "por faixa (CC0, CC BY, CC BY-NC…)",
+   "regra": "a API foi desativada: baixe pela página da faixa, só com licença compatível com o destino"
+  },
+  {
+   "id": "kenney",
+   "nome": "Kenney (efeitos e UI)",
+   "licenca": "CC0",
+   "regra": "pacotes oficiais do site"
+  },
+  {
+   "id": "sonniss",
+   "nome": "Sonniss GDC bundle",
+   "licenca": "royalty-free, sem crédito; não redistribuir",
+   "regra": "pacote anual oficial; não vai para repositório público"
+  },
+  {
+   "id": "mixkit",
+   "nome": "Mixkit",
+   "licenca": "download grátis = uso pessoal (Restricted) em 25/11/2026",
+   "regra": "só com licença comercial na página do item"
+  },
+  {
+   "id": "openverse",
+   "nome": "Openverse",
+   "licenca": "por obra (CC); atribuição quando a licença pedir",
+   "regra": "confira a licença na página de origem da obra"
+  },
+  {
+   "id": "chatgpt",
+   "nome": "ChatGPT (imagens, modo assistido)",
+   "licenca": "conta do usuário; imagens geradas = pessoas fictícias",
+   "regra": "o usuário está logado; eu escrevo o prompt e baixo a imagem pronta"
+  }
+ ]
+}

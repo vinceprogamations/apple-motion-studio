@@ -7,7 +7,7 @@ rights are confirmed. Project history stays in the private canonical copy:
 import os, re, shutil, sys, json, hashlib
 SKILL = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 NAME = os.path.basename(SKILL)
-EXCLUDE_DIRS = {'__pycache__', '_work', 'evidence', '.venv', 'node_modules', 'out'}
+EXCLUDE_DIRS = {'__pycache__', '_work', 'evidence', '.venv', 'node_modules', 'out', '.local'}
 PRIVATE_FILES = {'references/films.md', 'tests/run_regression.py', 'tests/origin-films.json', 'DISTRIBUTION.json'}
 # words that must never reach the public tree (origin-project brand, people, account), stored as sha256 prefixes so this file does
 # not publish them itself; plus any absolute user path. Fictional film names are allowed.

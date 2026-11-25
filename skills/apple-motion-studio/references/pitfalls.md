@@ -50,3 +50,8 @@
 | Curl em massa no Pixabay/Mixkit bloqueado | termos proíbem robôs | botão do site no navegador, poucos itens, usuário logado |
 | Vidro parece cinza chapado | sem fundo refratado atrás | `glassUnder`/`chip2D` desenhando `BGS` borrado e ampliado dentro do contorno |
 | Render 4K lento demais | `ctx.filter` blur em canvas cheio | desfoque a partir do `BGS` pequeno; sub-frames 6 só nas janelas `FAST` |
+| Fonte cai no fallback só no render | fonte de CDN bloqueada ou não carregada antes do quadro | fontes locais em `templates/dom/fonts/`; `ready` rejeita fonte que não decodifica |
+| Duas animações brigam pela mesma propriedade | dois tweens/expressões no mesmo `transform` (ex.: push + entrada) | uma expressão só por propriedade; anime só `transform` e `opacity` |
+| Tagline, número ou tela inventados | agente preencheu lacuna do brief | todo texto na tela vem do brief/copy aprovado; interface real por captura autorizada |
+| "Pronto" sem ter visto | QA passou e o agente concluiu que ficou bom | entrega por `conversa.py entrega`: medido ≠ assistido |
+

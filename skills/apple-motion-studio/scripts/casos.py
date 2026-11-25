@@ -67,6 +67,18 @@ def texto(pedido, sug):
           '- **Sem cases** — sigo só pelo seu briefing e não volto a sugerir referências neste projeto.']
     return '\n'.join(L)
 
+def modo_de(projeto, pedido):
+    p = os.path.join(projeto or '', 'studio-state.json')
+    if projeto and os.path.exists(p): return json.load(open(p, encoding='utf8')).get('mode', 'guiado')
+    from lib import delegation as D; return D.classify(pedido)['mode']
+
+def texto_autonomo(sug):
+    """Modo autônomo: nada de perguntar; diga numa linha o que vai aplicar e registre com --por agente."""
+    if not sug: return 'Modo autônomo: nenhuma ficha do catálogo combina; sigo só pelo briefing (nada a perguntar).'
+    ids = ' '.join(x['id'] for x in sug)
+    return ('Modo autônomo (não pergunte): aplico ' + '; '.join(f'**{x["titulo"]}** ({x["objetivo"].lower()})' for x in sug) +
+            f'.\nRegistre: python scripts/casos.py usar <projeto> {ids} --por agente · confira o teste na peça: ' + ' | '.join(x['teste'] for x in sug))
+
 def main():
     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest='cmd', required=True)
     s = sub.add_parser('sugerir'); s.add_argument('pedido'); s.add_argument('--projeto'); s.add_argument('--max', type=int, default=2); s.add_argument('--json', action='store_true')
@@ -78,8 +90,8 @@ def main():
         pref = preferencia(a.projeto)
         if pref is False:
             r = {'preferencia': 'sem cases', 'sugestoes': []}; print(json.dumps(r, ensure_ascii=False) if a.json else 'Preferência do projeto: sem cases (nada a sugerir).'); return
-        sug = sugerir(a.pedido, min(2, a.max))
-        print(json.dumps({'sugestoes': sug}, ensure_ascii=False, indent=1) if a.json else texto(a.pedido, sug)); return
+        sug = sugerir(a.pedido, min(2, a.max)); modo = modo_de(a.projeto, a.pedido)
+        print(json.dumps({'modo': modo, 'sugestoes': sug}, ensure_ascii=False, indent=1) if a.json else (texto_autonomo(sug) if modo == 'autonomo' else texto(a.pedido, sug))); return
     if a.cmd == 'listar':
         print(open(os.path.join(CASOS, 'README.md'), encoding='utf8').read()); return
     if a.cmd == 'ver':

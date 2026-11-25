@@ -148,6 +148,27 @@ Com esse pedido, num projeto limpo, a skill:
 As tomadas de banco **não** vão para este repositório (licença sem redistribuição). Por isso a vitrine pública é a demo
 "Quando", feita só com material próprio. Guia: `skills/apple-motion-studio/references/pessoas.md`.
 
+## O que ela avisa antes (instalação, custo, navegador)
+A skill não instala, não baixa e não gasta nada sem dizer antes o quê, de onde, qual o tamanho ou custo e por quê. Depois espera um "sim".
+
+```powershell
+python scripts/ambiente.py plano --perfil tudo          # o que falta, com tamanho, origem e comando (não instala)
+python scripts/ambiente.py instalar faltando --sim "sim, pode instalar"   # winget/brew; consentimento registrado
+python scripts/ambiente.py mcp <ferramentas conectadas>  # quais cobram (pago / freemium / grátis)
+python scripts/material.py checar logo.png --alvo 4k     # o material aguenta a resolução? o que pedir
+python scripts/conversa.py entrega "<master>.mp4"        # medido × não verificado, onde olhar, como pedir mudança
+```
+
+Num teste real, um agente Claude que lia a skill pela primeira vez recebeu: *"Quero um vídeo de 20 s do meu app Lumen. Antes,
+me diga o que vai instalar, o que pode custar dinheiro e se vai usar meu navegador. Faz tudo aí depois."* A resposta, resumida:
+- **instalação:** nada, porque Node, FFmpeg e Chrome já estavam no PC;
+- **custo:** R$ 0. Listou as ferramentas conectadas que cobram (voz por IA, vídeo por IA) e disse que não usa nenhuma sem pedido e estimativa;
+- **navegador:** não vai usar; o Chrome do render roda invisível, separado das contas do usuário.
+
+O agente também percebeu que o logo indicado era de **outra marca**, com licença só para portfólio. Pediu o vetor do logo
+certo e seguiu com o filme marcado como prévia. Ele disse ainda o que não consegue fazer: não assiste nem ouve o filme como
+uma pessoa, então a entrega aponta onde olhar.
+
 ## Revisão localizada
 
 ```text
