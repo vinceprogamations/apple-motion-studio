@@ -10,6 +10,8 @@ Estrutura de um filme DOM: `storyboard/N.html` = quadros; `aN.html` + `anim/sN.j
 ## Peças (em `templates/dom/` e `scripts/`)
 | Arquivo | Faz |
 |---|---|
+| `device.js` | aparelho real em cena: moldura renderizada do modelo 3D + interface recortada pela máscara da tela (`buildDevice`) |
+| `organico.js` | kit orgânico: folhas em profundidade (deriva, explosão, vórtice) e respingos líquidos chapados (`makeLeaves`, `makeSplash`, `splashAt`) |
 | `common.css` | palco (fundo grafite com luz suave, textura de pontos 4 %, grão), `.hl` título Display, `.sub`, `.glass` (Liquid Glass neutro), `.touch`, `.shadow`, `.prog` (barra de progresso em pontos) |
 | `phone.css` | celular: moldura de titânio, vidro preto, dynamic island, reflexo |
 | `light.css` | UI clara e realista de sistema (topo, hero com foto, cards "para resolver agora" com borda colorida, KPIs, menu inferior) — modelada na tela de referência que o usuário mandou |
@@ -20,6 +22,26 @@ Estrutura de um filme DOM: `storyboard/N.html` = quadros; `aN.html` + `anim/sN.j
 | `sequence.html` | junta as cenas (iframes) e faz o corte "dissolve em pontos" |
 | `scripts/render_dom.mjs` | `stills` / `video` / `events` com screenshot por CDP, 60 fps, BT.709, nome temporário |
 | `scripts/sheet916.py` | folha de stills em 9:16 (o `contact_sheet.py` estica para 16:9) |
+
+## Cantos: squircle sempre (regra do usuário, 28/11/2026)
+Tudo que é arredondado (ícone de app, card, janela de navegador, celular, botão, aviso, pílula, chip) é **squircle**: superelipse
+|x/a|⁴ + |y/b|⁴ = 1, curvatura contínua como os ícones da Apple. O arco circular do `border-radius` puro deixa uma quina visível onde
+encontra o lado reto e foi reprovado.
+- **DOM:** `common.css` já aplica `* { corner-shape: squircle; }` (= `superellipse(2)`, n = 4; Chrome 139+, o render usa 158).
+  Ao portar CSS antigo, suba o `border-radius` ~1,25× (o squircle arredonda menos com a mesma medida).
+- **Círculos de verdade** (avatar, toque, ripple, partícula, ponto, bolinha do semáforo da janela): classe `.circle` ou `corner-shape: round`.
+  Sem isso um `border-radius: 50%` vira um "quadrado gordo".
+- **Canvas/SVG:** desenhe a superelipse ponto a ponto (x = a·sgn(cos t)|cos t|^(2/n), y = b·sgn(sin t)|sin t|^(2/n), n = 4) ou, para
+  retângulo com cantos, um quarto de superelipse em cada canto.
+- **Blender:** perfil de superelipse no bevel/curva (não "arc"); confira o canto a 100 % no still.
+- **QA:** recorte 1:1 de um canto em todo filme; não pode haver mudança brusca de curvatura.
+- **Exceção: celular.** O corpo de um iPhone não é um squircle de CSS (nota do usuário, 28/11/2026). Use a moldura real:
+  `scripts/blender/device_front.py -- <modelo.fbx> <cena/img> 1240` renderiza a frente em ortográfica com a tela vazada
+  (`iphone-frente.png`) e a forma exata da tela (`iphone-mascara.png`). Na cena, borda preta = máscara cheia, interface = máscara
+  reduzida ~1,8 % (cantos concêntricos), moldura PNG por cima; a UI é desenhada em pontos (440 de largura) e escalada.
+  Template: `templates/dom/device.js` → `await buildDevice(host, largura)` (mede a tela na máscara; serve para qualquer modelo).
+- **Telas de app real** (perfil de rede social, agenda, loja): copie o *layout* de um print real que o usuário mandar (ordem,
+  proporções, modo escuro), nunca o logo ou o nome do app.
 
 ## Kit de movimento (`anim.js`)
 - `spr(t, f, z)` spring por **frequência (Hz) e amortecimento**; tokens `SP`: heavy [1.0, .72], soft [1.5, .82], ui [2.3, .45] (overshoot visível), snap [2.6, .6]. `sp(t,'ui')`.

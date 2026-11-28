@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset="utf-8"><title>bench</title><style>
+@font-face{font-family:Mont;src:url(../../../templates/dom/fonts/Montserrat-latin.woff2);font-weight:100 900}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#0b0b0c;color:#f4f1ec;font-family:Mont}
+.c{position:absolute;width:420px;height:520px;border-radius:30px;background:rgba(30,30,34,.6);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(26px) saturate(1.3);box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.b{position:absolute;border-radius:50%;filter:blur(60px)}
+h1{position:absolute;left:0;right:0;top:120px;text-align:center;font:800 120px Mont;margin:0}
+</style></head><body>
+<div class="b" id="b1" style="width:700px;height:500px;background:#ff5a1f;left:300px;top:400px"></div>
+<div class="b" id="b2" style="width:600px;height:500px;background:#3a6bff;left:1000px;top:300px"></div>
+<div class="c" id="c1" style="left:330px;top:380px"></div><div class="c" id="c2" style="left:750px;top:380px"></div><div class="c" id="c3" style="left:1170px;top:380px"></div>
+<h1 id="h">Teste de velocidade</h1>
+<script>
+// página de referência para medir a velocidade de render deste PC: vidro (backdrop-filter), desfoque grande, sombra e texto
+window.TOTAL = 2; window.EVENTS = []; window.TIMELINE = { total: 2, scenes: [{ id: 'bench', start: 0, end: 2 }], intentional: [] };
+window.renderAt = t => { b1.style.transform = `translate(${200 * Math.sin(t * 2)}px,${80 * Math.cos(t * 3)}px)`; b2.style.transform = `translate(${-180 * Math.sin(t * 2.4)}px,0)`;
+  [c1, c2, c3].forEach((c, i) => c.style.transform = `translateY(${30 * Math.sin(t * 3 + i)}px) rotate(${2 * Math.sin(t + i)}deg)`); h.style.letterSpacing = (-0.03 + 0.01 * Math.sin(t)) + 'em'; };
+window.ready = document.fonts.load('800 120px Mont').then(() => { renderAt(0); return true; });
+</script></body></html>

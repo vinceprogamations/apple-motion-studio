@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.3.0 — 2026-11-28
+**Acervo de referências, aparelho real e acabamento orgânico.**
+- **`scripts/acervo.py` + `references/acervo.md`**: acervo grátis de modelos 3D (CC0/CC-BY), HDRIs de estúdio, materiais PBR e telas reais
+  de apps (só como referência de layout). Nos modos guiado e híbrido a skill pergunta *"Posso acessar o Chrome e baixar tudo?"*; no modo
+  autônomo ("faça tudo") baixa sem perguntar e avisa numa linha. Instalar, pagar ou criar conta continuam pedindo o sim.
+- **`conversa.py abertura`** checa o acervo e já inclui a pergunta (ou o aviso) no combinado.
+- **Aparelho real em cena**: `scripts/blender/device_front.py` renderiza a frente de um celular/tablet de um modelo 3D com a tela vazada
+  e a máscara da tela; `templates/dom/device.js` (`buildDevice`) monta moldura + borda + interface recortada, medindo a tela na máscara.
+- **Squircle** por padrão (`corner-shape: squircle` no `common.css`); círculos verdadeiros ficam `round`; o celular usa a moldura real.
+- **`templates/dom/organico.js`**: folhas em profundidade (deriva, explosão, vórtice) e respingos líquidos em cor chapada.
+- **Portão de assets** aceita vídeo (`<video data-asset>`), com prontidão e resolução medidas como nas fotos.
+- **QA de quadros** tolera o decimal arredondado de cortes em quadro inteiro e sugere frações exatas (`28 / 3`).
+- **Imagens pelo ChatGPT**: baixar cada imagem assim que ela sai (o Chrome bloqueia downloads múltiplos sem avisar).
+- Lições novas em `references/aprendizados.md` e `references/dom-pipeline.md`; testes em `tests/run_acervo.py`.
+
 ## v1.2.0 — 2026-11-25
 **Relacionamento com o usuário:** a skill diz antes o que vai instalar, baixar, gastar e fazer no navegador, e na entrega separa o que foi medido do que ninguém viu.
 - **`scripts/ambiente.py`**:

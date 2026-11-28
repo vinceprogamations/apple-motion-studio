@@ -1,3 +1,5 @@
+/* cantos: squircle vem do common.css (* { corner-shape: squircle }); avatar continua círculo */
+.av { corner-shape: round; }
 /* light, realistic product UI (modelled on the user's reference system) */
 .lui { position: absolute; inset: 0; background: #F6F7F9; color: #16181D; font-family: UI, sans-serif; overflow: hidden; }
 .lui .top { display: flex; align-items: center; gap: 12px; padding: 78px 24px 14px; background: #fff; border-bottom: 1px solid #E7E9EE; font-weight: 700; font-size: 20px; }

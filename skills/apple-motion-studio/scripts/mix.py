@@ -51,7 +51,7 @@ def main():
             return q(EV[c[key]]) + c.get('offset', 0)
         return c[fallback] + c.get('offset', 0)
     def tval(v): return q(EV[v]) if isinstance(v, str) else v
-    L = a.len or EV.get('end') or 20; N = int(L * SR); mix = np.zeros((N + SR * 4, 2)); cache = {}; placed = []; stems = {}
+    L = a.len or EV.get('end') or 20; N = int(L * SR); mix = np.zeros((N + SR * 4, 2)); cache = {}; placed = []; late = []; stems = {}
     def put(name, st, sig):
         if name not in stems: stems[name] = np.zeros_like(mix)
         stems[name][st:st + len(sig)] += sig
@@ -73,6 +73,9 @@ def main():
         if c.get('dur'): n = int(c['dur'] * SR); s = s[:n].copy(); fade = min(n, int(0.08 * SR)); s[-fade:] *= np.linspace(1, 0, fade)[:, None]
         pan = c.get('pan', 0); s = s * 10 ** (c['db'] / 20) * np.array([np.sqrt((1 - pan) / 2), np.sqrt((1 + pan) / 2)]) * 1.41
         al = c.get('align', 'peak'); ref = {'peak': int(np.argmax(env(s))), 'start': onset(s), 'end': tail_end(s)}[al]
+        if al == 'start':   # golpe com ataque lento (booms de trailer, whooshes): alinhar pelo início deixa o PICO atrasado na imagem
+            lag = (int(np.argmax(env(s))) - onset(s)) / SR
+            if lag > 0.08: late.append((when(c), c.get('event', ''), os.path.basename(f), lag))
         t = when(c); st = int(t * SR) - ref
         if st < 0: s = s[-st:]; ref += st; st = 0   # starts before 0: trim the head, the aligned point stays on the beat
         nn = min(len(s), len(mix) - st); mix[st:st + nn] += s[:nn]; put(c.get('stem', 'efeitos'), st, s[:nn]); placed.append((t, al, c.get('event', ''), os.path.basename(f), (st + ref) / SR))
@@ -88,6 +91,8 @@ def main():
     subprocess.run([FFMPEG, '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-', '-c:a', 'pcm_s24le', a.out], input=mix.astype(np.float32).tobytes(), check=True)
     # sync check: where does each cue's aligned point actually sit (its own placement), and how far from the beat?
     worst = 0
+    for t, ev, name, lag in late:
+        print(f"AVISO: {ev or t:} '{name[:48]}' alinhado pelo início, mas o pico chega {lag * 1000:.0f} ms depois — o golpe vai soar ATRASADO na imagem. Use \"align\": \"peak\" (ou confira se o atraso é intencional).")
     for t, al, ev, name, actual in sorted(placed):
         err = (actual - t) * 1000; worst = max(worst, abs(err)); print(f"{t:6.3f}s  {ev[:14]:14s} {al:5s}  {err:+6.1f} ms  {name[:58]}")
     print(f"sync: {len(placed)} cues, worst offset {worst:.1f} ms (1 frame at 24 fps = 41.7 ms)   peak {20 * np.log10(np.abs(mix).max() + 1e-9):.1f} dBFS")

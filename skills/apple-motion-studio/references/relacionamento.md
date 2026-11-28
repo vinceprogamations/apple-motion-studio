@@ -12,11 +12,18 @@ Base (pesquisa de 25/11/2026 sobre motion graphics com Claude Code e Codex):
 - **Mudar fica caro depois do storyboard.** Style frames e storyboard são o checkpoint certo para mudanças grandes.
 - **O agente só vê quadros parados.** Timing, ritmo e som são medidos, não sentidos, e isso deve ser dito ao usuário.
 
+## Perguntar mais e melhor (pedido do usuário, 26/11/2026)
+"A skill ainda pergunta pouco": o modelo produz melhor quando sabe para quem, onde, a frase, o material, a sensação, as pessoas,
+a música, a voz, o CTA, o uso, a prioridade e o ritmo de aprovações.
+- `briefing.py perguntas` traz tudo o que falta numa rodada, com a opção recomendada primeiro; o que o pedido já disse não é perguntado de novo.
+- Isso não contradiz "perguntas demais travam": o problema é perguntar a conta-gotas ou perguntar o óbvio. Uma rodada completa e objetiva é melhor do que 6 idas e vindas.
+- **Estimativa de tempo:** pergunte se pode ler o PC e rodar um teste de ~1 min (`estimativa.py ler --sim`). Depois mostre, no combinado, o tempo de máquina, o tempo de criação e as pausas dele.
+
 ## Os cinco momentos
 
 | Momento | O que dizer | Ferramenta |
 |---|---|---|
-| 1. Primeira resposta | o que entendeu, os cases (se couberem) e no máximo **uma** pergunta de briefing; se o material enviado estiver fraco, **uma linha** pedindo o arquivo melhor | `casos.py sugerir`, `material.py checar` |
+| 1. Primeira resposta | o que entendeu, **o questionário completo numa rodada** (`briefing.py perguntas`, uma chamada por bloco), os cases (se couberem) e a permissão da estimativa; se o material estiver fraco, **uma linha** pedindo o arquivo melhor | `briefing.py`, `casos.py sugerir`, `material.py checar` |
 | 2. Combinado (antes de produzir) | como vamos trabalhar (checkpoints do modo), material que melhora o filme, o que será instalado, o custo, o uso do navegador, o que eu não consigo fazer, como dar nota | `conversa.py abertura` |
 | 3. Antes de cada ação sensível | instalar programa, baixar arquivo, usar o navegador do usuário, chamar ferramenta paga: **o quê, de onde, tamanho/custo, por quê**, e esperar o sim | `ambiente.py plano / instalar / mcp` |
 | 4. Checkpoints | storyboard ou prévia com **o que olhar** (2–3 perguntas fechadas: "o fecho com o logo está forte o bastante?") | folha de contato, `stills` |
@@ -26,6 +33,11 @@ No modo autônomo, os momentos 1, 2 e 4 viram uma linha cada na nota de entrega.
 baixar pelo navegador e gastar dinheiro são permissões, não escolhas de gosto, e "faz tudo aí" não as cobre. Se o usuário
 já disse "pode instalar" (`constraints.instalar` no estado), isso vale para programas **grátis** do plano mostrado. Gasto pago
 continua exigindo pedido explícito e estimativa.
+
+**Exceção — acervo de referências** (decisão do usuário, 28/11/2026): a lista grátis e curada de `scripts/acervo.py` (modelos 3D
+CC0/CC-BY, HDRIs, materiais, capturas da App Store e os aparelhos do Sketchfab pelo Chrome) é perguntada uma vez nos modos guiado
+e híbrido ("Posso acessar o Chrome e baixar tudo?") e **baixada sem perguntar** no modo autônomo, com aviso de uma linha.
+Instalar programa, pagar, criar conta ou baixar fora da lista seguem a regra acima. Ver `references/acervo.md`.
 
 ## Instalar programas (o usuário quer que a skill instale)
 1. `python scripts/ambiente.py plano [--perfil core|3d|extra|tudo]` lista o que já existe e o que falta, com tamanho, origem e comando.

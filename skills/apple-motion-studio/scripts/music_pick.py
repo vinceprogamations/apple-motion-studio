@@ -11,6 +11,7 @@
 import json, sys, os, argparse, subprocess
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lib.tools import find_tool
+import trilhas
 for _s in (sys.stdout, sys.stderr):
     try: _s.reconfigure(encoding='utf-8')
     except Exception: pass
@@ -23,6 +24,8 @@ def viable(t, a):
     if a.dest == 'redistribuir' and not t.get('redistribute'): return False, 'licença não permite redistribuir o arquivo (demo pública/repositório)'
     if a.dest == 'publico' and t.get('content_id') is not False: return False, 'Content ID ' + ('registrado' if t.get('content_id') else 'desconhecido') + ' (risco de reivindicação em publicação)'
     if not os.path.exists(t['file']): return False, 'arquivo indisponível'
+    u = trilhas.usada(t['file'])                                   # pedido do usuário: nenhum vídeo repete a música de outro
+    if u: return False, 'já usada em ' + ', '.join(u)
     return True, ''
 
 def fit(t, m, a):

@@ -51,8 +51,8 @@ def mostrar(pedido, sinais):
 def texto(pedido, sug):
     """O bloco que o agente mostra no primeiro briefing (modo guiado/híbrido)."""
     if not sug:
-        return ('Catálogo de estudos de caso: nenhuma das 14 referências corresponde bem a este pedido, então sigo sem elas. '
-                'Se quiser ver o catálogo mesmo assim: `python scripts/casos.py listar`.')
+        return ('Estudos de caso: nenhum dos 14 da biblioteca combina com este pedido, então sigo pelo seu briefing. '
+                'Se quiser, mostro o catálogo inteiro para você escolher uma referência mesmo assim.')
     L = [f'**Antes de começar:** a skill tem um catálogo com 14 estudos de caso (produção, apresentações, som, 3D). '
          f'{"Duas combinam" if len(sug) == 2 else "Uma combina"} com o seu pedido:', '']
     for i, s in enumerate(sug, 1):

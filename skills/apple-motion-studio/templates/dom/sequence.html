@@ -11,6 +11,7 @@
 // draws the cut: the frame dissolves into a dot grid closing on the last action point, the next scene re-forms from it.
 // Contract for render_dom.mjs: renderAt(t), TOTAL, ready, EVENTS.
 const CUTS = [0, 4.0, 8.5];                     // scene start times (s). Scene i runs CUTS[i] -> CUTS[i+1]
+// Cortes em QUADRO INTEIRO para todo fps de entrega (30 e 60): use frações exatas (28 / 3), não decimais (9.333); o drop da trilha costuma cair fora da grade.
 const ORIGIN = [null, [540, 1000], [540, 1100]]; // where the wipe INTO scene i closes (usually the last touch/action point of scene i-1)
 const TOTAL = 13, TW = 0.34, CELL = 30;          // TW = half-length of each dot wipe
 window.TOTAL = TOTAL;

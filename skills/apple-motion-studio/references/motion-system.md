@@ -1,6 +1,6 @@
 # Sistema de motion (o que faz parecer Apple)
 
-Fonte: pesquisa `pesquisa-apple-motion/reports/Engenharia de motion design Apple.md` (seções C e D, 49 tokens com
+Fonte: pesquisa `referencias/pesquisa-apple-motion/reports/Engenharia de motion design Apple.md` (seções C e D, 49 tokens com
 fórmula) + regras de um designer em várias rodadas de notas + os filmes do projeto de origem. A Apple documenta a física
 da UI (WWDC23 "Animate with springs"); a linguagem dos filmes é inferida. Nunca invente "valores da Apple".
 
@@ -65,6 +65,18 @@ movimento longo use **uma** curva só (ou `blender/tracks.py`/spline monotônica
 - Antecipação: contra-movimento de ~3 % por 80 ms antes do reveal hero (ou squash de ~8 % uma pose antes de crescer).
 - **Hold de texto ≥ max(1,2 s; caracteres/12) + 0,3 s**, contado da última palavra nítida. "Menos dor. Mais movimento." (26 car.) → ≥ 2,2 s.
 - Sempre algo se movendo: um drift lento de câmera ou partículas já basta; quadro parado parece morto.
+- **Leitura mínima:** tudo que é importante (título, número, estado-chave da interface) fica **≥ 1,5 s** na tela. Contadores sobem
+  em ~1 s com saída suave e nunca pulam para o valor final num quadro.
+- **Saídas mais curtas que entradas:** ~60 % da duração da entrada, acelerando; a próxima coisa entra durante os últimos ~20 %
+  da saída (sobreposição), nunca depois de um vazio.
+- **Clique:** todo toque tem um "aperto" (escala 1 → 0,96 → 1 em ~8 quadros) e um anel que nasce do ponto tocado.
+- **Cursor:** nunca em linha reta. Ele anda em arco (bezier com o ponto de controle a ~15 % da distância), acelera e desacelera e
+  acomoda com um micro-overshoot no destino, como uma mão.
+- **Como no After Effects:** agrupe peças relacionadas num pai e anime o grupo; defase cada filho 2–4 quadros.
+- **Imagem que precisa bater na batida começa antes:** uma palavra que entra por máscara só fica legível no meio da mola, então
+  dispare-a `max(3 quadros, meia subida da mola)` ANTES da batida. O som fica na batida. (Da motion-reel-kit, `spHit`.)
+- **Vários formatos:** posicione tudo a partir do centro do quadro, e mantenha o elemento-chave de cada plano dentro do quadrado
+  central. Assim o 9:16 e o 1:1 são reenquadrados, não cortados.
 
 ## 4. Composição e densidade
 - Ação **no centro** (mira invisível); o centro óptico fica um pouco acima do geométrico. Espaço para a headline em cima.
@@ -114,6 +126,10 @@ Nunca cross dissolve entre planos. Opacidade só dentro de uma transformação m
 - **Um matiz de acento por filme** (Vela: âmbar #FFB547 → #FF7A1A; outra marca: o teal dela). O resto em brancos e cinzas quentes.
 - Grão animado sutil (overlay ~6 %, 4 texturas com seed alternando) evita banding de 8 bits no escuro.
 - Motion blur por sub-frames: 6 nas janelas `FAST` (movimentos rápidos), 2 no resto, obturador 180° (`0.5/25`). Fantasma = poucos sub-frames.
+- **Páginas DOM:** `render_dom.mjs video … --blur N` captura N subquadros num obturador de 180° e o ffmpeg faz a média. Os
+  subquadros nunca atravessam um corte (início de cena em `TIMELINE.scenes`). Use 4–6 em filmes com rolagem, zoom ou whip.
+  Custo medido no PC de origem: cada subquadro soma ~0,1 s/quadro 1080p; um filme de 37 s foi de 4,4 min para cerca de 11 min com `--blur 6`.
+  Rode `estimativa.py estimar --blur N` antes.
 - Tudo determinístico: nada de `Date.now`, `performance.now`, `Math.random` sem seed, CSS transitions ou setTimeout.
 
 ## 9. Linguagem de movimento do brief "$1M launch film"

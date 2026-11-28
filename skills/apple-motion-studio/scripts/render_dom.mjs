@@ -7,6 +7,8 @@
 //   --root <dir>        folder served (must contain everything the page loads; default: the page's folder)
 //   --fps 60            --w 1080 --h 1920 (CSS viewport)   --scale 1  (device scale factor: 2 = 2160x3840 native, not upscaled)
 //   --from s --to s     render a time range       --png  lossless PNG intermediate (default JPEG q95)
+//   --blur N            motion blur: N subquadros por quadro num obturador de 180° (média no ffmpeg). 4–8 em movimento rápido;
+//                       custa N× o tempo. Subquadros nunca atravessam um corte (início de cena em TIMELINE.scenes).
 //   --manifest <json>   asset manifest (default: asset-manifest.json next to the page, if present)
 //   --gate strict|warn  asset gate mode (default strict for video/check, warn for stills/events)
 //   --legacy "<motivo>" render a project made before the asset gate without a manifest (recorded in the report). A new film
@@ -35,6 +37,7 @@ import { findTool } from './lib/tools.mjs';
 const argv = process.argv.slice(2), flag = n => { const i = argv.indexOf(n); if (i < 0) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const bool = n => { const i = argv.indexOf(n); if (i < 0) return false; argv.splice(i, 1); return true; };
 const FPS = +(flag('--fps') || 60), ROOT0 = flag('--root'), FROM = +(flag('--from') || 0), TO = flag('--to'), W = +(flag('--w') || 1080), H = +(flag('--h') || 1920);
+const BLUR = Math.max(1, Math.round(+(flag('--blur') || 1))), SHUTTER = 0.5;
 const LEGACY = flag('--legacy'), flagTimes = flag('--times'), REPLACE = bool('--replace'), SCALE = +(flag('--scale') || 1), PNG = bool('--png'), MANIFEST0 = flag('--manifest'), READY_S = +(flag('--ready-timeout') || 60), ALLOW_ERR = bool('--allow-errors');
 const [mode, pageArg, out, ...rest] = argv;
 const GATE = flag('--gate') || (['video', 'check'].includes(mode) ? 'strict' : 'warn');
@@ -136,7 +139,7 @@ async function assetGate() {
       const slot = (s.slots || []).find(x => x.id === (a.slot || a.id));
       if (!slot) { P(a, `a cena não tem elemento com data-asset="${a.slot || a.id}"`, 'marque o elemento da vaga com data-asset e use o arquivo do manifesto'); best = 'missing'; break; }
       const bound = slot.urls.some(u => decodeURIComponent(new URL(u, HTTP).pathname) === expect);
-      if (!bound) { P(a, slot.gradient ? 'a vaga mostra um gradiente/cor, não a foto' : `a vaga mostra outro arquivo (${slot.urls.map(u => decodeURIComponent(new URL(u, HTTP).pathname)).join(', ') || 'nada'})`, `use background-image:url(${a.file}) ou <img src="${a.file}"> no elemento data-asset="${a.slot || a.id}"`); best = 'unbound'; break; }
+      if (!bound) { P(a, slot.gradient ? 'a vaga mostra um gradiente/cor, não a foto' : `a vaga mostra outro arquivo (${slot.urls.map(u => decodeURIComponent(new URL(u, HTTP).pathname)).join(', ') || 'nada'})`, `use background-image:url(${a.file}), <img src="${a.file}"> ou <video src="${a.file}"> no elemento data-asset="${a.slot || a.id}"`); best = 'unbound'; break; }
       const [x, y, w, h] = slot.rect, onScreen = w > 1 && h > 1 && x + w > 0 && y + h > 0 && x < W && y < H;
       const ok = onScreen && slot.opacity > 0.5; if (ok) best = best || { t, w, h, op: slot.opacity }; if (ok && w * h > (best.w * best.h)) best = { t, w, h, op: slot.opacity };
     }
@@ -145,9 +148,11 @@ async function assetGate() {
       const loaded = await ev(`(() => { const out = []; const fr = [...document.querySelectorAll('iframe')]; const wins = fr.length ? fr.map(f => f.contentWindow) : [window];
         for (const w of wins) for (const x of (w.__studio ? w.__studio.assets : [])) out.push(x); return out; })()`);
       const info = loaded.find(x => decodeURIComponent(new URL(x.url, HTTP).pathname) === expect);
-      if (!info || !info.ok) P(a, 'a imagem não decodificou no navegador (arquivo corrompido ou formato inválido)', 'substitua o arquivo');
+      if (!info || !info.ok) P(a, info && info.video ? 'o vídeo não decodificou no navegador (codec/arquivo inválido)' : 'a imagem não decodificou no navegador (arquivo corrompido ou formato inválido)', info && info.video ? 'gere um proxy H.264 all-intra (ver footage.js)' : 'substitua o arquivo');
       else { row.checks.pixels = `${info.w}x${info.h}`; const need = Math.max(best.w, best.h) * SCALE;
-        if (Math.min(info.w, info.h) < need * 0.9) P(a, `resolução insuficiente: ${info.w}x${info.h} px para ~${Math.round(need)} px na tela (escala ${SCALE})`, 'gere/obtenha versão maior; ampliar não cria detalhe'); }
+        // ampliação real, eixo a eixo (cover/contain e fotos verticais em tela cheia); a regra antiga min(lado) × max(tela) reprovava 9:16 com sobra
+        const amp = Math.max(best.w * SCALE / info.w, best.h * SCALE / info.h);
+        if (amp > 1 / 0.9) P(a, `resolução insuficiente: ${info.w}x${info.h} px ampliada ${amp.toFixed(2)}× para ~${Math.round(best.w * SCALE)}x${Math.round(best.h * SCALE)} px na tela (escala ${SCALE})`, 'gere/obtenha versão maior; ampliar não cria detalhe'); }
     } else if (best === null) P(a, `não aparece visível entre ${a.visible[0]} e ${a.visible[1]} s (fora da tela ou transparente)`, 'confira a animação e o intervalo "visible" no manifesto');
   }
   for (const p of problems) {
@@ -220,14 +225,19 @@ try {
   const total = TO ? +TO : await ev('window.TOTAL'), n0 = Math.round(FROM * FPS), n1 = Math.round(total * FPS), t0 = Date.now(), tmp = resolve(out).replace(/\.mp4$/i, '') + '.tmp.mp4';
   report.frames = n1 - n0; report.duration = (n1 - n0) / FPS;
   mkdirSync(dirname(resolve(out)), { recursive: true });
-  const ff = spawn(FFMPEG, ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', PNG ? 'png' : 'mjpeg', '-i', '-',
-    '-vf', PNG ? 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p,setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv'   // RGB in -> BT.709 limited; setparams so primaries/transfer are tagged too
-               : 'colorspace=space=bt709:trc=bt709:primaries=bt709:range=tv:ispace=bt470bg:itrc=bt709:iprimaries=bt709:irange=pc:format=yuv420p',   // JPEG (BT.601 full) -> BT.709 limited
+  const CUTS = BLUR > 1 ? JSON.parse(await ev('JSON.stringify(((window.TIMELINE && window.TIMELINE.scenes) || []).map(s => s.start).filter(x => x > 0))')) : [];
+  report.blur = BLUR > 1 ? { subframes: BLUR, shutter: SHUTTER * 360, cuts: CUTS.length } : null;
+  const subT = (tc, k) => { let ts = tc + ((k + 0.5) / BLUR - 0.5) * SHUTTER / FPS; for (const c of CUTS) { if (tc < c && ts >= c) ts = c - 1e-4; if (tc >= c && ts < c) ts = c; } return Math.max(0, ts); };
+  const blurVf = BLUR > 1 ? `tmix=frames=${BLUR},select='eq(mod(n\\,${BLUR})\\,${BLUR - 1})',setpts=N/${FPS}/TB,` : '';
+  const ff = spawn(FFMPEG, ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS * BLUR), '-c:v', PNG ? 'png' : 'mjpeg', '-i', '-',
+    '-vf', blurVf + (PNG ? 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p,setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv'   // RGB in -> BT.709 limited; setparams so primaries/transfer are tagged too
+               : 'colorspace=space=bt709:trc=bt709:primaries=bt709:range=tv:ispace=bt470bg:itrc=bt709:iprimaries=bt709:irange=pc:format=yuv420p'),   // JPEG (BT.601 full) -> BT.709 limited
+    '-r', String(FPS),
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '15', '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv',
     '-movflags', '+faststart', tmp], { stdio: ['pipe', 'ignore', 'pipe'] });
   let err = ''; ff.stderr.on('data', d => err += d); const fin = new Promise((ok, no) => ff.on('close', c => c === 0 ? ok() : no(new Error(err || 'ffmpeg failed'))));
   try {
-    for (let f = n0; f < n1; f++) { const b = await frame(f / FPS).catch(e => { throw new Error(`quadro ${f} (t=${(f / FPS).toFixed(3)} s): ${e.message}`); }); if (!ff.stdin.write(b)) await new Promise(r => ff.stdin.once('drain', r));
+    for (let f = n0; f < n1; f++) { for (let k = 0; k < BLUR; k++) { const tk = BLUR > 1 ? subT(f / FPS, k) : f / FPS; const b = await frame(tk).catch(e => { throw new Error(`quadro ${f} (t=${tk.toFixed(3)} s): ${e.message}`); }); if (!ff.stdin.write(b)) await new Promise(r => ff.stdin.once('drain', r)); }
       if (pageErrors.length && !ALLOW_ERR) throw new Error(`erro na página no quadro ${f} (t=${(f / FPS).toFixed(3)} s): ${pageErrors[0]}`);
       if (f % (FPS * 2) === 0) process.stdout.write(`\r${f}/${n1} frames ${((Date.now() - t0) / 1000).toFixed(0)}s`); }
     ff.stdin.end(); await fin;

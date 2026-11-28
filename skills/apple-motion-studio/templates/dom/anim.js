@@ -57,9 +57,9 @@ function burst(host, key, x, y, lt, t0, n = 12, color = '#fff') { let ps = host[
   const k = prog(lt, t0, t0 + 0.8); ps.forEach(p => { const e = outCubic(k); p.d.style.visibility = k > 0 && k < 1 ? 'visible' : 'hidden';
     p.d.style.left = (x + Math.cos(p.a) * p.v * e) + 'px'; p.d.style.top = (y + Math.sin(p.a) * p.v * e + 60 * k * k) + 'px'; p.d.style.width = p.d.style.height = p.s * (1 - k * 0.6) + 'px'; p.d.style.opacity = 1 - k; }); }
 // shared CSS for runtime helpers
-document.head.insertAdjacentHTML('beforeend', `<style>.ripple{position:absolute;width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;border:3px solid rgba(255,255,255,.9);pointer-events:none}
+document.head.insertAdjacentHTML('beforeend', `<style>.ripple{position:absolute;width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;corner-shape:round;border:3px solid rgba(255,255,255,.9);pointer-events:none}
 .hl,.tagline{background:none!important}.hl .w,.tagline .w{background:linear-gradient(180deg,#fff 0%,#fff 58%,#a7a9b0 100%);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.08em}
-.pt{position:absolute;border-radius:50%;margin:-5px 0 0 -5px;box-shadow:0 0 12px rgba(255,255,255,.8);z-index:13}.touch{visibility:hidden}</style>`);
+.pt{position:absolute;border-radius:50%;corner-shape:round;margin:-5px 0 0 -5px;box-shadow:0 0 12px rgba(255,255,255,.8);z-index:13}.touch{visibility:hidden}</style>`);
 // the dots progress bar and the marquee are global ambience
 function ambience(lt) { $$('.marq').forEach((m, i) => setT(m, `translateX(${(i % 2 ? 1 : -1) * lt * 60}px)`)); }
 // ---------------------------------------------------------------- readiness (asset-aware)
@@ -84,6 +84,12 @@ async function studioReady() {
   for (const img of document.images) jobs.push(img.decode().then(() => ({ url: img.currentSrc || img.src, ok: img.naturalWidth > 0, w: img.naturalWidth, h: img.naturalHeight }),
     () => ({ url: img.currentSrc || img.src, ok: false, w: 0, h: 0 })).then(r => Object.assign(r, { slot: slotOf(img), optional: !!img.closest('[data-optional]') })));
   const seen = new Set(); for (const el of document.querySelectorAll('body *')) for (const u of cssUrls(el)) { const key = u + '|' + (slotOf(el) || ''); if (!seen.has(key)) { seen.add(key); jobs.push(loadCheck(u, el)); } }
+  // vídeos (<video> de filmagem/banco): valem como asset; prontos quando o primeiro quadro decodifica (vaga data-asset de vídeo)
+  for (const v of document.querySelectorAll('video')) jobs.push(new Promise(res => {
+    const done = () => res({ url: v.currentSrc || v.src, ok: v.videoWidth > 0, w: v.videoWidth, h: v.videoHeight, video: true });
+    if (v.readyState >= 2) return done(); v.addEventListener('loadeddata', done, { once: true }); v.addEventListener('error', done, { once: true });
+    setTimeout(done, 15000); if (v.preload === 'none') v.preload = 'auto'; v.load && v.readyState === 0 && v.load();
+  }).then(r => Object.assign(r, { slot: slotOf(v), optional: !!v.closest('[data-optional]') })));
   __studio.assets = await Promise.all(jobs);
   for (const a of __studio.assets) if (!a.ok) (a.optional ? __studio.warnings : __studio.failures).push({ url: a.url, slot: a.slot, reason: 'imagem não carregou ou não decodificou' + (a.optional ? ' (opcional)' : '') });
   if (__studio.failures.length || __studio.errors.length)
@@ -92,7 +98,7 @@ async function studioReady() {
 }
 // what each asset slot ([data-asset]) currently shows: used by the renderer to prove the photo is bound and visible
 __studio.slots = () => [...document.querySelectorAll('[data-asset]')].map(el => {
-  const r = el.getBoundingClientRect(), urls = el.tagName === 'IMG' ? [el.currentSrc || el.src] : [...cssUrls(el), ...[...el.querySelectorAll('img')].map(i => i.currentSrc || i.src)];
+  const r = el.getBoundingClientRect(), urls = ['IMG', 'VIDEO'].includes(el.tagName) ? [el.currentSrc || el.src] : [...cssUrls(el), ...[...el.querySelectorAll('img, video')].map(i => i.currentSrc || i.src)];
   let op = 1, n = el; while (n && n.nodeType === 1) { const cs = getComputedStyle(n); op *= parseFloat(cs.opacity); if (cs.visibility === 'hidden' || cs.display === 'none') op = 0; n = n.parentElement; }
   const bg = getComputedStyle(el).backgroundImage;
   return { id: el.getAttribute('data-asset'), urls, gradient: /gradient\(/.test(bg) && !urls.length, rect: [r.left, r.top, r.width, r.height], opacity: op, optional: el.hasAttribute('data-optional') };

@@ -79,7 +79,7 @@ def main():
             if q['start'] < p['end'] - 1e-6: problem('timeline', f"sobreposição {q['start']}–{p['end']} s entre {p['id']} e {q['id']}")
         for s in sc:
             for k in ('start', 'end'):
-                if abs(s[k] * tfps - round(s[k] * tfps)) > 1e-6: problem('timeline', f"{s['id']}.{k}={s[k]} s não cai em quadro inteiro a {tfps} fps")
+                if abs(s[k] * tfps - round(s[k] * tfps)) > 1e-3: problem('timeline', f"{s['id']}.{k}={s[k]} s não cai em quadro inteiro a {tfps} fps → use a fração exata no CUTS (ex.: 28 / 3 em vez de 9.333)")  # 1e-3 quadro: tolera decimais arredondados (9.333333)
         if tl.get('total') and abs(sc[-1]['end'] - tl['total']) > 1e-6: problem('timeline', f"última cena termina em {sc[-1]['end']} s, filme tem {tl['total']} s")
     # audio
     if a.audio or out['measures']['has_audio']:

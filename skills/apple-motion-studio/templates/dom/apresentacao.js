@@ -19,7 +19,7 @@
     .s{position:absolute;left:160px;right:300px;font:400 40px/1.35 Txt;opacity:.72}
     .foto{position:absolute;inset:0;background-size:cover;background-position:center;filter:grayscale(1) contrast(1.15) brightness(.55)}
     .ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.85),rgba(0,0,0,.35) 70%)}
-    .glass{position:absolute;border-radius:40px;background:rgba(140,140,150,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(30px) saturate(1.1);box-shadow:0 40px 100px rgba(0,0,0,.5)}
+    *{corner-shape:squircle}.glass{position:absolute;border-radius:40px;background:rgba(140,140,150,.14);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(30px) saturate(1.1);box-shadow:0 40px 100px rgba(0,0,0,.5)}
     .perfil{position:absolute;font:600 34px Txt;opacity:.6;letter-spacing:.02em}
     .tela{position:absolute;font:500 30px Txt;opacity:.55}
     .obj{position:absolute;left:530px;top:420px;width:860px;height:240px;border-radius:30px;background:#fff;color:#000;padding:36px 44px;box-sizing:border-box}

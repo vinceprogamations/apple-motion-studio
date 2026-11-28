@@ -43,6 +43,14 @@ def abertura(projeto, pedido, arquivos, mcps, alvo, sites):
     pagos = [x for x in s if x['custo'] != 'grátis']
     L += ['', '**Custo**', 'R$ 0: tudo roda aqui com ferramentas grátis e bibliotecas licenciadas.']
     if pagos or d: L.append('Conectadas e que podem cobrar (não uso sem você pedir e sem estimativa):\n' + ambiente.texto_mcp(pagos, d))
+    # acervo de referências (modelos 3D, luz de estúdio, materiais, telas de apps): pergunta no guiado/híbrido, baixa no autônomo
+    import acervo
+    dac = acervo.pasta(argparse.Namespace(dir=None)); fac = [k for k, (sub, alvo, _) in acervo.PARTES.items() if acervo.contar(dac, sub) < alvo]
+    if fac:
+        L += ['', '**Acervo de referências**', ('Vou baixar o acervo grátis de referências (modelos 3D, luz de estúdio, materiais e telas de apps; ' + acervo.pergunta(fac).split('(')[-1].split(')')[0] + '), como parte do "faça tudo"; as licenças ficam em acervo.json.'
+              if modo == 'autonomo' else acervo.pergunta(fac))]
+    else:
+        L += ['', '**Acervo de referências**', f'Já está aqui ({dac}): uso os modelos 3D, a luz de estúdio e as telas de app como referência.']
     L += ['', '**Navegador**', ambiente.texto_sites(sites) if sites else
           'Não vou usar o seu navegador: o Chrome que desenha os quadros roda invisível, separado das suas contas e abas. '
           'Se precisar baixar algo de um site, antes digo qual site, qual arquivo e a licença, e espero o seu sim.']

@@ -4,6 +4,13 @@
 @font-face { font-family: Display; src: url("fonts/Montserrat-latin.woff2") format("woff2"); font-weight: 100 900; }
 :root { --ink: #FFFFFF; --mute: #8E8E93; --graf: #14161F; }
 * { box-sizing: border-box; margin: 0; }
+/* Squircle (regra do usuário, 28/11/2026): tudo que é arredondado — ícone de app, card, janela, celular, botão, aviso, pílula —
+   é superelipse n = 4 (curvatura contínua), nunca o arco circular do border-radius. corner-shape: squircle = superellipse(2) = n 4
+   (Chrome 139+). Com a mesma medida o squircle "arredonda menos": use border-radius ~1,25× o valor que usaria antes.
+   Círculos de verdade (avatar, toque, ponto, partícula) marcam .circle (ou estão na lista abaixo) e ficam round. */
+* { corner-shape: squircle; }
+.circle, .touch, .shadow, .prog i, .av, .ripple, .pt { corner-shape: round; }
+
 html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; font-family: UI, sans-serif; color: var(--ink); }
 .stage { position: absolute; inset: 0; overflow: hidden;
   background:

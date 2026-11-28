@@ -66,6 +66,14 @@ Pergunta-guia: **"o que este objeto está tentando dizer?"** Se o som não respo
 Evite: dings e sinos óbvios, digitação, zumbidos contínuos, lasers/8-bit, o mesmo arquivo idêntico repetido (varie `pitch` 0,92–1,15 e ±1–2 dB).
 
 ## Sincronia (25 fps, 1 frame = 40 ms)
+- **A trilha tem de estar na grade dos cortes.** Meça o andamento com `python scripts/batidas.py <trilha> --grade <período dos cortes>`,
+  que usa três bandas e vários trechos e fica com a mais consistente (em garage sincopado, a banda do chimbal). Depois, ou corte
+  nos múltiplos do período medido, ou estique a trilha com o `atempo` que o script dá. Erro do filme de academia (26/11/2026): a
+  grade de 0,4645 s, estimada por picos de volume, contra a trilha real de 0,4626 s fez a música deslizar ~60 ms até o logo, e
+  o usuário notou "desincronia no fim".
+- **Golpes com ataque lento** (booms de trailer, whooshes, arpejos): alinhe pelo **pico** (`"align": "peak"`). O `mix.py` avisa
+  quando um efeito alinhado pelo início tem o pico mais de 80 ms depois. Leia os AVISOS: são intencionais só quando o som constrói
+  para dentro do evento.
 | Evento | Regra |
 |---|---|
 | impacto, pouso, clique, toque | pico no frame do contato ou +1 frame; **nunca adiantado** mais que ~20 ms (som adiantado é o erro que o olho pega) |

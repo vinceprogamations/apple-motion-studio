@@ -100,3 +100,68 @@ than a silhouette, so offer them only if the shape doesn't read.
 A variation that works well: start shaded, flash one inverted frame (a negative of the picture, on a fast movement,
 with a shutter sound), and carry on as a flat silhouette.
 - **Caminho de saída sempre absoluto** (`os.path.abspath`). Um `render.filepath` relativo em modo `-b` foi resolvido na raiz do disco (os PNGs foram para `C:\<pasta>` em vez do projeto).
+
+---
+
+# Guia de execução no Claude Code (27/11/2026)
+
+## Escolha por plano
+| O plano depende de… | Use |
+|---|---|
+| tipografia, UI legível, timing editável em segundos | DOM/canvas (`render_dom.mjs`) |
+| 3D simples, parallax e espessura, com revisão rápida | Three.js (`render.mjs --gpu`) |
+| **geometria, articulação, material, luz, reflexo, oclusão ou sombra de contato** | **Blender/Cycles** |
+| 3D com texto e UI por cima | **híbrido**: PNG do Blender + camada HTML com `renderAt` carregando o quadro (ver o projeto de Natal na pasta `projetos/`) |
+
+## Modelagem e rig
+- **Escala real** (metros) e proporções do aparelho de referência. Defina espessura, bevel (raio coerente com o tamanho), normais (smooth + Weighted Normal), UV nas telas e eixos locais.
+- **Hierarquia**: as partes fixas são filhas da base. Teclado, trackpad e botões acompanham o corpo.
+- **Partes articuladas** ficam sob um **`Empty` no eixo físico**, por exemplo a dobradiça na borda de trás. Desloque a peça de modo que a borda dela coincida com o eixo. Gire o `Empty`, nunca a peça pelo centro, e confira a folga com a peça fechada.
+- **Modelos prontos** (o usuário permite): confira licença, escala, eixos e materiais. Evite os que imitam marca real.
+
+## Movimento e câmera
+- **Blockout primeiro**, em cinza e com poucas amostras: enquadramento e timing antes de material.
+- **Curvas**: `tracks.mono` ou F-curves sem overshoot quando a física não pede. Uma curva por movimento, com velocidade contínua nas emendas. Renderize quadros dos dois lados de cada emenda.
+- **Foco (DOF)** acompanha o objeto principal. Parallax e oclusão vêm da câmera.
+- **Motion blur** com shutter ~0,45. Renderize um plano por execução, para o blur não atravessar o corte.
+- **Geometry Nodes** para repetição procedural (teclas, grades, partículas).
+- **Simulação** só quando a interação física justificar, com cache versionado por plano.
+- **Tracking** só para integrar o 3D a filmagem.
+
+## Acabamento e saída
+- Teste **luz** e **material** separadamente: primeiro uma prévia sem cor (forma), depois em cor. Mude uma fonte de luz por vez.
+- Na dúvida entre motores, compare **EEVEE × Cycles** no mesmo enquadramento e em movimento.
+- Confira reflexos, sombra de contato e consistência de cor. `Khronos PBR Neutral` preserva a cor de UI e de marca.
+- Confira **cintilação** em quadros consecutivos. Se houver, use denoise temporal ou mais amostras.
+- Saída em PNG basta para compor em HTML. Use EXR multicamada, com os passes necessários, quando a composição pedir.
+- **GLB entre Blender e Three.js**: confira escala, eixos (Y-up × Z-up), materiais e animação importada.
+
+## Regras de CLI (headless)
+- Confirme a versão e o dispositivo: `blender -b --version`. O kit escolhe OPTIX ou CUDA e imprime `device`.
+- Prefira `bpy.data`, que é direto e não depende de contexto. Ao usar `bpy.ops` em headless, confirme o contexto (objeto ativo, modo).
+- Rode `blender -b --python-exit-code 1 -P scene.py -- …`, para que uma exceção vire código de saída diferente de zero.
+- Ao renderizar um `.blend`, passe as opções **antes** de `-f`/`-a`, porque os argumentos são processados em ordem. Exemplo: `blender -b f.blend -o //out/#### -F PNG -f 10`.
+- Saída sempre em caminho **absoluto** (`os.path.abspath`), com numeração contínua (`0001.png`…) e uma pasta por versão.
+- Antes do render completo, meça o custo em 3–4 quadros representativos (close, plano aberto, vidro).
+- Para retomar um render, o kit pula os PNG que já existem. Antes de compor, confira a integridade: contagem de arquivos, tamanho maior que zero e se abrem.
+
+## Caso de regressão — notebook do filme de Natal
+Aplique a todo aparelho articulado:
+1. Teclado e trackpad são filhos da base e não sobem no "explodido".
+2. A tampa gira no `Empty` da dobradiça traseira.
+   - Fechada, ela fica acima das teclas, com folga.
+   - Aberta, o ângulo segue a referência do aparelho. Os ~108° foram decisão daquele plano, não regra.
+3. Revise estes momentos: **fechado**, **primeiros quadros da abertura**, **menor folga**, **intermediários** e **pose final**, além da câmera final e de **uma vista lateral**.
+4. Nos pontos de risco, use quadros consecutivos e recortes a 100 %.
+5. Para checar contato ou interseção, consulte a **geometria avaliada** no quadro certo: `scene.frame_set(f)` seguido de `obj.evaluated_get(depsgraph)`. Não use a malha original.
+6. `qa_frames` aprovado **não** encerra a revisão de peça solta, interseção, pivô ou contato errado.
+
+## Fontes
+- Render headless, ordem dos argumentos e sequência: https://docs.blender.org/manual/en/latest/advanced/command_line/render.html
+- API e *dependency graph*: https://docs.blender.org/api/current/bpy.types.Context.html
+- Motores de render: https://docs.blender.org/manual/en/5.3/render/introduction.html
+- Instâncias e glTF: https://docs.blender.org/manual/en/5.3/modeling/geometry_nodes/instances.html · https://docs.blender.org/manual/en/5.3/addons/scene_gltf2.html
+- Gestão de cor e passes: https://docs.blender.org/manual/en/4.5/render/color_management.html · https://docs.blender.org/manual/en/latest/render/layers/passes.html
+- Comunidade, rig de dobradiça: https://blender.stackexchange.com/questions/162967/how-to-rig-a-folding-laptop-with-a-hinge
+- Comunidade, luz de produto e bevel: https://blenderartists.org/t/how-do-i-achieve-realistic-lighting-like-the-attached-product-render/1617205
+- Cintilação em animação: https://blenderartists.org/t/flickering-noise-on-cycles-animation/1383040 · https://studio.blender.org/blog/denoising-sprite-fright/
