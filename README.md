@@ -1,11 +1,11 @@
-<p align="center"><img src="assets/logo.svg" width="96" alt="logo: uma mola amortecida que assenta num ponto"></p>
+<p align="center"><img src="assets/icones/logo.png" width="132" alt="logo: uma mola amortecida de vidro que assenta num ponto"></p>
 
 <h1 align="center">Apple Motion Studio</h1>
 
 <p align="center"><b>Comerciais dirigidos por código para Claude Code e Codex.</b> Do briefing ao MP4 com som, e cada nota vira uma mudança localizada:<br>
 "atrase a confirmação em seis quadros", "deixe esse som menos estridente", "troque a foto deste perfil".</p>
 
-<p align="center"><img src="assets/banner.png" alt="Banner: título, chips e três quadros da demo Quando" width="820"></p>
+<p align="center"><img src="assets/banner.png" alt="Banner: título, chips, ícones e três quadros de um filme de Natal em 3D (Blender) feito com a skill" width="820"></p>
 
 > Projeto independente, **sem afiliação com a Apple Inc.** "Apple" no nome indica a referência de estilo dos filmes de
 > lançamento (precisão, materialidade, tipografia, som). A skill nunca usa logotipo, fontes, sons ou textos da Apple.
@@ -16,20 +16,26 @@
 lançamento, **sem gerador de vídeo por IA**. Cada quadro é uma função do tempo (`renderAt(t)`), renderizada em Chrome headless
 e codificada com FFmpeg em MP4 de 1080p ou 4K, 16:9 ou 9:16, até 60 fps. O fluxo completo:
 
-- **Briefing e storyboard.** Duas tiras com premissas diferentes quando o roteiro admite soluções diferentes. A direção
-  escolhida diz em qual quadro o espectador entende a promessa.
-- **Animação.** DOM/CSS para interfaces, Canvas, Three.js para geometria real, Blender para produto fotorrealista. Física de
-  mola única (`duration`/`bounce`), câmera contínua e texto palavra por palavra.
-- **Som.** Eventos sonoros amarrados aos eventos visuais (`window.EVENTS`), música escolhida por licença antes de gosto, stems
-  separados, true peak medido no MP4 decodificado e checagem de mono.
-- **Portões automáticos.** Foto obrigatória ausente, corrompida ou não ligada à vaga bloqueia o master. Exceções de JS, 404,
-  quadros congelados, colisão de texto durante transições e cobertura zero de QA são detectados. Uma exportação interrompida
-  nunca altera o master válido.
-- **Autonomia com escopo.** "Faça tudo, decide tudo" produz e entrega sem perguntas de gosto. "Faça tudo, mas quero escolher a
-  música" gera uma única pergunta. O estado salvo distingue *escolha do agente por delegação*, *aprovado pelo usuário* e
-  *aprovação de terceiro*.
+<table>
+<tr>
+<td width="50%" valign="top"><img src="assets/icones/storyboard.png" width="56" align="left" alt="">&nbsp;<b>Briefing e storyboard</b><br>Duas tiras com premissas diferentes quando o roteiro admite soluções diferentes. A direção escolhida diz em qual quadro o espectador entende a promessa.</td>
+<td width="50%" valign="top"><img src="assets/icones/animacao.png" width="56" align="left" alt="">&nbsp;<b>Animação</b><br>DOM/CSS para interfaces, Canvas, Three.js para geometria real. Física de mola única (<code>duration</code>/<code>bounce</code>), câmera contínua e texto palavra por palavra.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="assets/icones/som.png" width="56" align="left" alt="">&nbsp;<b>Som</b><br>Eventos sonoros amarrados aos eventos visuais (<code>window.EVENTS</code>), música escolhida por licença antes de gosto, stems separados, true peak medido no MP4 decodificado e checagem de mono.</td>
+<td width="50%" valign="top"><img src="assets/icones/portoes.png" width="56" align="left" alt="">&nbsp;<b>Portões automáticos</b><br>Foto obrigatória ausente, corrompida ou não ligada à vaga bloqueia o master. Exceções de JS, 404, quadros congelados, colisão de texto e cobertura zero de QA são detectados. Uma exportação interrompida nunca altera o master válido.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="assets/icones/autonomia.png" width="56" align="left" alt="">&nbsp;<b>Autonomia com escopo</b><br>"Faça tudo, decide tudo" entrega sem perguntas de gosto. "Faça tudo, mas quero escolher a música" gera uma única pergunta. O estado distingue <i>escolha do agente por delegação</i>, <i>aprovado pelo usuário</i> e <i>aprovação de terceiro</i>.</td>
+<td width="50%" valign="top"><img src="assets/icones/revisao.png" width="56" align="left" alt="">&nbsp;<b>Revisão localizada</b><br>"Atrase a confirmação em seis quadros" muda uma batida; o som segue o mesmo evento e o resto fica idêntico.</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="assets/icones/blender.png" width="56" align="left" alt="">&nbsp;<b>Blender para produto</b><br>Planos de produto físico em Cycles (luz, material, contato), com camada 2D por cima para texto e interface.</td>
+<td width="50%" valign="top"><img src="assets/icones/casos.png" width="56" align="left" alt="">&nbsp;<b>Estudos de caso</b><br>Catálogo com 14 fichas: no primeiro briefing a skill sugere no máximo duas, com o porquê e o risco de cada uma.</td>
+</tr>
+</table>
 
-## Exemplo: a demo "Quando"
+## <img src="assets/icones/animacao.png" width="30" align="center" alt=""> Exemplo: a demo "Quando"
 
 App fictício, 12 s, vertical, com som. Tudo nela é gerado pela própria skill (página, trilha e efeitos), então qualquer pessoa
 reproduz a demo com os arquivos deste repositório.
@@ -79,7 +85,7 @@ para invocá-la por `/apple-motion-studio`.
 pastas do seu projeto, o `.venv` é recriado pelo `setup.py`, e um master nunca é sobrescrito: `studio.py promote` guarda o
 anterior.
 
-## "Faça tudo, decide por mim"
+## <img src="assets/icones/autonomia.png" width="30" align="center" alt=""> "Faça tudo, decide por mim"
 
 ```text
 Você: Faça um comercial vertical de 12 s para o meu app de agenda, decide tudo, sem locução.
@@ -101,7 +107,7 @@ pergunta, com recomendação e alternativa no mesmo trecho e loudness comparáve
 | **híbrido** | parte delegada, parte reservada | só a decisão reservada |
 | **autônomo** | "faça tudo", "decide tudo", "a direção é sua" | nenhuma escolha de gosto. Pede só um asset obrigatório que falte (ex.: a assinatura sonora oficial) e entrega a versão sem ele como **prévia** |
 
-### Estudos de caso no primeiro briefing
+### <img src="assets/icones/casos.png" width="30" align="center" alt=""> Estudos de caso no primeiro briefing
 
 A skill traz um catálogo com 14 estudos de caso (apresentações, demos, som, 3D, filmes com pessoas) em
 `skills/apple-motion-studio/references/casos/`. No primeiro briefing ela sugere **no máximo duas** fichas e explica, para cada
@@ -129,7 +135,7 @@ O que cada resposta do usuário faz:
 - **"sem cases":** a preferência fica gravada; nenhuma ficha é sugerida ou citada, nem nas revisões.
 - **"ver o catálogo":** `python scripts/casos.py listar`.
 
-### Exemplo: comercial com pessoas
+### <img src="assets/icones/storyboard.png" width="30" align="center" alt=""> Exemplo: comercial com pessoas
 
 ```text
 Faça um comercial de 20 segundos com pessoas para uma marca fictícia. Faz tudo aí. Encontre o material,
@@ -148,7 +154,7 @@ Com esse pedido, num projeto limpo, a skill:
 As tomadas de banco **não** vão para este repositório (licença sem redistribuição). Por isso a vitrine pública é a demo
 "Quando", feita só com material próprio. Guia: `skills/apple-motion-studio/references/pessoas.md`.
 
-## O que ela avisa antes (instalação, custo, navegador)
+## <img src="assets/icones/portoes.png" width="30" align="center" alt=""> O que ela avisa antes (instalação, custo, navegador)
 A skill não instala, não baixa e não gasta nada sem dizer antes o quê, de onde, qual o tamanho ou custo e por quê. Depois espera um "sim".
 
 ```powershell
@@ -169,7 +175,7 @@ O agente também percebeu que o logo indicado era de **outra marca**, com licen�
 certo e seguiu com o filme marcado como prévia. Ele disse ainda o que não consegue fazer: não assiste nem ouve o filme como
 uma pessoa, então a entrega aponta onde olhar.
 
-## Revisão localizada
+## <img src="assets/icones/revisao.png" width="30" align="center" alt=""> Revisão localizada
 
 ```text
 Você: Atrase a confirmação em seis quadros.
